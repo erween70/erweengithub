@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Notes Guitare</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #quiz-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #question-area {
+            margin-bottom: 20px;
+            min-height: 100px; /* Pour éviter les sauts de page */
+        }
+        #question-text {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        #answer-input {
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 5px;
+            width: 60%;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 20px; /* Espace pour le feedback */
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        #score-area, #results-area {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        #start-button, #restart-button {
+             margin-top: 15px;
+             background-color: #28a745;
+        }
+         #start-button:hover, #restart-button:hover {
+             background-color: #218838;
+         }
+        /* Cacher des éléments au début */
+        #quiz-area, #results-area {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <h1>Quiz Notations Guitare</h1>
+
+    <div id="start-area">
+        <p>Prêt à tester vos connaissances sur les notations de notes (Internationale vs Latine) ?</p>
+        <p>Le quiz contient 10 questions.</p>
+        <button id="start-button">Commencer le Quiz</button>
+    </div>
+
+    <div id="quiz-area">
+        <div id="score-area">Score: <span id="score">0</span> / 10</div>
+        <div id="question-area">
+            <p id="question-counter"></p>
+            <p id="question-text"></p>
+            <input type="text" id="answer-input" placeholder="Votre réponse...">
+            <button id="submit-button">Valider</button>
+            <div id="feedback"></div>
+        </div>
+    </div>
+
+    <div id="results-area">
+        <h2>Quiz Terminé !</h2>
+        <p id="final-score"></p>
+        <button id="restart-button">Recommencer</button>
+    </div>
+
+</div>
+
+<script>
+    // ----- Éléments DOM -----
+    const startArea = document.getElementById('start-area');
+    const quizArea = document.getElementById('quiz-area');
+    const resultsArea = document.getElementById('results-area');
+    const startButton = document.getElementById('start-button');
+    const submitButton = document.getElementById('submit-button');
+    const restartButton = document.getElementById('restart-button');
+    const questionCounterEl = document.getElementById('question-counter');
+    const questionTextEl = document.getElementById('question-text');
+    const answerInput = document.getElementById('answer-input');
+    const feedbackEl = document.getElementById('feedback');
+    const scoreEl = document.getElementById('score');
+    const finalScoreEl = document.getElementById('final-score');
+
+    // ----- Données du Quiz -----
+    const noteEquivalences = [
+        { letter: 'A', latin: 'La' },
+        { letter: 'B', latin: 'Si' },
+        { letter: 'C', latin: 'Do' },
+        { letter: 'D', latin: 'Ré' },
+        { letter: 'E', latin: 'Mi' },
+        { letter: 'F', latin: 'Fa' },
+        { letter: 'G', latin: 'Sol' }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let quizQuestions = []; // Contiendra les 10 questions sélectionnées
+
+    // ----- Fonctions du Quiz -----
+
+    // Mélanger un tableau (algorithme Fisher-Yates)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]]; // Échange d'éléments
+        }
+        return array;
+    }
+
+    // Générer les questions pour le quiz
+    function generateQuestions() {
+        let possibleQuestions = [];
+        // Créer les deux types de questions pour chaque paire
+        noteEquivalences.forEach(note => {
+            possibleQuestions.push({
+                question: note.letter, // La question est la lettre
+                answer: note.latin,    // La réponse attendue est la note latine
+                prompt: `Quelle note latine (Do, Ré, Mi...) correspond à "${note.letter}" ?`
+            });
+            possibleQuestions.push({
+                question: note.latin,  // La question est la note latine
+                answer: note.letter,   // La réponse attendue est la lettre
+                prompt: `Quelle notation internationale (A, B, C...) correspond à "${note.latin}" ?`
+            });
+        });
+
+        // Mélanger toutes les questions possibles
+        shuffleArray(possibleQuestions);
+
+        // Sélectionner les 10 premières questions (ou moins si pas assez de paires)
+        quizQuestions = possibleQuestions.slice(0, TOTAL_QUESTIONS);
+    }
+
+    // Afficher la question actuelle
+    function displayQuestion() {
+        if (currentQuestionIndex < quizQuestions.length) {
+            const currentQ = quizQuestions[currentQuestionIndex];
+            questionCounterEl.textContent = `Question ${currentQuestionIndex + 1} / ${TOTAL_QUESTIONS}`;
+            questionTextEl.textContent = currentQ.prompt;
+            answerInput.value = ''; // Vider le champ de réponse
+            feedbackEl.textContent = ''; // Vider le feedback
+            answerInput.focus(); // Mettre le focus sur le champ de réponse
+        } else {
+            // Fin du quiz
+            showResults();
+        }
+    }
+
+    // Normaliser la réponse (lowercase, sans accents pour simplifier la comparaison)
+    function normalizeAnswer(answer) {
+        return answer.trim().toLowerCase()
+               .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Enlève les accents
+    }
+
+
+    // Vérifier la réponse de l'utilisateur
+    function checkAnswer() {
+        const userAnswerRaw = answerInput.value;
+        const correctAnswer = quizQuestions[currentQuestionIndex].answer;
+
+        // Normalisation pour la comparaison
+        const userAnswerNormalized = normalizeAnswer(userAnswerRaw);
+        const correctAnswerNormalized = normalizeAnswer(correctAnswer);
+
+        if (userAnswerNormalized === correctAnswerNormalized) {
+            score++;
+            feedbackEl.textContent = "Correct !";
+            feedbackEl.className = 'correct';
+        } else {
+            feedbackEl.textContent = `Incorrect. La bonne réponse était : ${correctAnswer}`;
+            feedbackEl.className = 'incorrect';
+        }
+
+        scoreEl.textContent = score; // Mettre à jour le score affiché
+        currentQuestionIndex++;
+
+        // Attendre un peu avant d'afficher la question suivante pour que l'utilisateur voie le feedback
+        submitButton.disabled = true; // Désactiver le bouton pendant l'attente
+        answerInput.disabled = true;
+        setTimeout(() => {
+             feedbackEl.textContent = ''; // Effacer le feedback avant la prochaine question
+             feedbackEl.className = '';
+             submitButton.disabled = false; // Réactiver
+             answerInput.disabled = false;
+             displayQuestion();
+        }, 1500); // Attendre 1.5 secondes
+    }
+
+    // Afficher les résultats finaux
+    function showResults() {
+        quizArea.style.display = 'none';
+        resultsArea.style.display = 'block';
+        finalScoreEl.textContent = `Votre score : ${score} / ${TOTAL_QUESTIONS}`;
+    }
+
+    // Démarrer le quiz
+    function startQuiz() {
+        score = 0;
+        currentQuestionIndex = 0;
+        scoreEl.textContent = score;
+        generateQuestions(); // Générer les 10 questions aléatoires
+        startArea.style.display = 'none';
+        resultsArea.style.display = 'none';
+        quizArea.style.display = 'block';
+        displayQuestion();
+    }
+
+    // ----- Écouteurs d'événements -----
+    startButton.addEventListener('click', startQuiz);
+    submitButton.addEventListener('click', checkAnswer);
+    restartButton.addEventListener('click', startQuiz);
+
+    // Permettre de valider avec la touche Entrée
+    answerInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Empêcher le comportement par défaut (si dans un formulaire)
+            if (!submitButton.disabled) { // Ne pas soumettre si le bouton est désactivé
+                 checkAnswer();
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>
