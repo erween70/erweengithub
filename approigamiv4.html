@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur SVG Multi-Boîtes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Style for Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Tab styling */
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: border-color 0.3s ease, color 0.3s ease;
+            color: #6b7280; /* gray-500 */
+            white-space: nowrap; /* Prevent wrapping on small screens */
+        }
+        .tab-button.active {
+            border-color: #4f46e5; /* indigo-600 */
+            color: #1f2937; /* gray-800 */
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none; /* Hide content by default */
+            padding-top: 1.5rem; /* Add some space below tabs */
+        }
+        .tab-content.active {
+            display: block; /* Show active content */
+        }
+
+        /* SVG Preview / Line Styling */
+        /* Apply styles to all potential preview areas */
+        #svgPreviewModaMasu svg, #svgPreviewBaggi svg, #svgPreviewModulabox svg, #svgPreviewKatta svg { /* Added Katta */
+            max-width: 100%; height: auto; border: 1px solid #eee; display: block; margin: 1rem auto;
+        }
+        .fold-line { stroke: black; stroke-width: 0.5; }
+        .diagonal-line-preview { stroke: blue; stroke-width: 0.5; stroke-dasharray: 5 3; } /* Only for Moda Masu preview */
+        .sheet-outline { stroke: gray; stroke-width: 0.2; fill: none; }
+        /* Languette fold line style (same as fold-line) */
+        .languette-fold-line { stroke: black; stroke-width: 0.5; }
+
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+    <div class="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md">
+
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Générateur SVG Multi-Boîtes</h1>
+
+        <div class="border-b border-gray-200 mb-6 overflow-x-auto">
+            <nav class="-mb-px flex justify-center space-x-4" aria-label="Tabs">
+                <button class="tab-button active" data-tab="modaMasuTabContent" data-tabname="Boîte Moda Masu">Boîte Moda Masu</button>
+                <button class="tab-button" data-tab="baggiTabContent" data-tabname="Boîte Baggi">Boîte Baggi</button>
+                <button class="tab-button" data-tab="modulaboxTabContent" data-tabname="Modulabox">Modulabox</button>
+                <button class="tab-button" data-tab="kattaTabContent" data-tabname="Katta">Katta</button> </nav>
+        </div>
+
+        <div id="tabContentContainer">
+
+            <div id="modaMasuTabContent" class="tab-content active">
+                <h2 class="text-xl font-semibold text-center text-indigo-700 mb-4">Paramètres - Boîte Moda Masu</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+                    <div class="md:col-span-2"> <label for="boxNameModaMasu" class="block text-sm font-medium text-gray-700 mb-1">Nom de la boîte :</label> <input type="text" id="boxNameModaMasu" name="boxNameModaMasu" value="MaBoiteModaMasu" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nom pour le fichier"> </div>
+                    <div> <label for="longueurModaMasu" class="block text-sm font-medium text-gray-700 mb-1">Longueur (L):</label> <input type="number" id="longueurModaMasu" name="longueurModaMasu" min="0.1" step="0.1" value="100" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="ex: 100.0"> </div>
+                    <div> <label for="largeurModaMasu" class="block text-sm font-medium text-gray-700 mb-1">Largeur (l):</label> <input type="number" id="largeurModaMasu" name="largeurModaMasu" min="0.1" step="0.1" value="80" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="ex: 80.0"> </div>
+                    <div class="md:col-span-2"> <label for="hauteurModaMasu" class="block text-sm font-medium text-gray-700 mb-1">Hauteur (h):</label> <input type="number" id="hauteurModaMasu" name="hauteurModaMasu" min="0.1" step="0.1" value="30" class="w-full max-w-xs mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="ex: 30.0"> </div>
+                </div>
+                <p class="text-xs text-gray-500 mb-4 text-center">Entrez les dimensions et un nom pour votre boîte Moda Masu.</p>
+                 <div id="resultSectionModaMasu" class="hidden mt-6"> <p class="text-md text-gray-700 mb-4 text-center"> Taille feuille Moda Masu : <strong id="sheetSizeInfoModaMasu" class="text-indigo-600"></strong> </p> <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu (avec diagonales) :</h3> <div id="svgPreviewModaMasu" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div> </div>
+            </div>
+
+            <div id="baggiTabContent" class="tab-content">
+                 <h2 class="text-xl font-semibold text-center text-teal-700 mb-4">Paramètres - Boîte Baggi</h2>
+                 <p class="text-center text-gray-600 py-4"> Entrez les dimensions pour la boîte Baggi. La largeur et la hauteur sont identiques. </p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+                     <div class="md:col-span-2"> <label for="boxNameBaggi" class="block text-sm font-medium text-gray-700 mb-1">Nom de la boîte :</label> <input type="text" id="boxNameBaggi" name="boxNameBaggi" value="MaBoiteBaggi" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="Nom pour le fichier"> </div>
+                     <div> <label for="longueurBaggi" class="block text-sm font-medium text-gray-700 mb-1">Longueur (L) :</label> <input type="number" id="longueurBaggi" name="longueurBaggi" min="0.1" step="0.1" value="150" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="ex: 150.0"> </div>
+                     <div> <label for="largeurHauteurBaggi" class="block text-sm font-medium text-gray-700 mb-1">Largeur / Hauteur (l/h) :</label> <input type="number" id="largeurHauteurBaggi" name="largeurHauteurBaggi" min="0.1" step="0.1" value="50" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" placeholder="ex: 50.0"> </div>
+                 </div>
+                 <div id="resultSectionBaggi" class="hidden mt-6"> <p class="text-md text-gray-700 mb-4 text-center"> Dimensions feuille Baggi : <strong id="sheetSizeInfoBaggi" class="text-teal-600"></strong> </p> <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu Boîte Baggi :</h3> <div id="svgPreviewBaggi" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div> </div>
+            </div>
+
+             <div id="modulaboxTabContent" class="tab-content">
+                 <h2 class="text-xl font-semibold text-center text-purple-700 mb-4">Paramètres - Modulabox</h2>
+                 <p class="text-center text-gray-600 py-4"> Entrez les dimensions de la boîte. </p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+                     <div class="md:col-span-2"> <label for="boxNameModulabox" class="block text-sm font-medium text-gray-700 mb-1">Nom de la boîte :</label> <input type="text" id="boxNameModulabox" name="boxNameModulabox" value="MaModulabox" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="Nom pour le fichier"> </div>
+                     <div class="md:col-span-2 flex items-center justify-center space-x-4">
+                         <div class="flex items-center"> <input type="checkbox" id="addLanguettesModulabox" name="addLanguettesModulabox" class="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"> <label for="addLanguettesModulabox" class="ml-2 block text-sm font-medium text-gray-700">Ajouter des languettes ?</label> </div>
+                         <div id="languetteWidthContainer" class="hidden"> <label for="largeurLanguetteModulabox" class="block text-sm font-medium text-gray-700 mb-1">Largeur languette (l2):</label> <input type="number" id="largeurLanguetteModulabox" name="largeurLanguetteModulabox" min="0.1" step="0.1" value="15" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="ex: 15.0"> </div>
+                     </div>
+                     <div> <label for="hauteurModulabox" class="block text-sm font-medium text-gray-700 mb-1">Hauteur (H) :</label> <input type="number" id="hauteurModulabox" name="hauteurModulabox" min="0.1" step="0.1" value="60" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="ex: 60.0"> </div>
+                     <div> <label for="longueurModulabox" class="block text-sm font-medium text-gray-700 mb-1">Longueur (L) :</label> <input type="number" id="longueurModulabox" name="longueurModulabox" min="0.1" step="0.1" value="100" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="ex: 100.0"> </div>
+                     <div> <label for="largeurModulabox" class="block text-sm font-medium text-gray-700 mb-1">Largeur (l) :</label> <input type="number" id="largeurModulabox" name="largeurModulabox" min="0.1" step="0.1" value="40" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="ex: 40.0"> </div>
+                     <div> <label for="rabatModulabox" class="block text-sm font-medium text-gray-700 mb-1">Rabat (R) :</label> <input type="number" id="rabatModulabox" name="rabatModulabox" min="0.1" step="0.1" value="30" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500" placeholder="ex: 30.0"> </div>
+                 </div>
+                  <div id="resultSectionModulabox" class="hidden mt-6"> <p class="text-md text-gray-700 mb-4 text-center"> Dimensions feuille Modulabox : <strong id="sheetSizeInfoModulabox" class="text-purple-600"></strong> </p> <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu Modulabox :</h3> <div id="svgPreviewModulabox" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div> </div>
+            </div>
+
+             <div id="kattaTabContent" class="tab-content"> <h2 class="text-xl font-semibold text-center text-lime-700 mb-4">Paramètres - Katta</h2> <p class="text-center text-gray-600 py-4"> Définissez les dimensions de base et le nombre de séparations. </p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+                     <div class="md:col-span-3"> <label for="boxNameKatta" class="block text-sm font-medium text-gray-700 mb-1">Nom du Katta :</label> <input type="text" id="boxNameKatta" name="boxNameKatta" value="MonKatta" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="Nom pour le fichier"> </div>
+                     <div> <label for="hauteurKatta" class="block text-sm font-medium text-gray-700 mb-1">Hauteur (H) :</label> <input type="number" id="hauteurKatta" name="hauteurKatta" min="0.1" step="0.1" value="50" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 50.0"> </div>
+                     <div> <label for="longueurKatta" class="block text-sm font-medium text-gray-700 mb-1">Longueur (L) :</label> <input type="number" id="longueurKatta" name="longueurKatta" min="0.1" step="0.1" value="200" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 200.0"> </div>
+                     <div> <label for="largeurKatta" class="block text-sm font-medium text-gray-700 mb-1">Largeur (l) :</label> <input type="number" id="largeurKatta" name="largeurKatta" min="0.1" step="0.1" value="150" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 150.0"> </div>
+                     <div> <label for="sepVKatta" class="block text-sm font-medium text-gray-700 mb-1">Sép. Vert. (sepV) :</label> <input type="number" id="sepVKatta" name="sepVKatta" min="0" step="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 1"> </div>
+                     <div> <label for="sepHKatta" class="block text-sm font-medium text-gray-700 mb-1">Sép. Horiz. (sepH) :</label> <input type="number" id="sepHKatta" name="sepHKatta" min="0" step="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 1"> </div>
+                 </div>
+                  <div id="resultSectionKatta" class="hidden mt-6"> <p class="text-md text-gray-700 mb-4 text-center"> Dimensions feuille Katta : <strong id="sheetSizeInfoKatta" class="text-lime-600"></strong> </p> <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu Katta :</h3>
+                     <div class="flex justify-center space-x-4 my-4">
+                         <button id="addVerticalLineBtnKatta" class="bg-lime-600 hover:bg-lime-700 text-white text-sm font-bold py-1 px-3 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition duration-150 ease-in-out">
+                             + Ligne Verticale
+                         </button>
+                         <button id="addHorizontalLineBtnKatta" class="bg-lime-600 hover:bg-lime-700 text-white text-sm font-bold py-1 px-3 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition duration-150 ease-in-out">
+                             + Ligne Horizontale
+                         </button>
+                     </div>
+                     <div id="svgPreviewKatta" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div> </div>
+            </div>
+
+            </div>
+
+        <div class="mt-8 border-t pt-6">
+            <div class="text-center mb-6">
+                <button id="generateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                    Générer le SVG (...)
+                </button>
+            </div>
+            <div id="downloadSection" class="text-center hidden">
+                 <button id="downloadBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                     Télécharger SVG (...)
+                </button>
+            </div>
+            <div id="errorMessages" class="text-red-600 text-sm mt-4 text-center"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadSection = document.getElementById('downloadSection');
+        const errorMessages = document.getElementById('errorMessages');
+        // Moda Masu
+        const boxNameModaMasuInput = document.getElementById('boxNameModaMasu');
+        const sheetSizeInfoModaMasu = document.getElementById('sheetSizeInfoModaMasu');
+        const svgPreviewModaMasu = document.getElementById('svgPreviewModaMasu');
+        const resultSectionModaMasu = document.getElementById('resultSectionModaMasu');
+        // Baggi
+        const boxNameBaggiInput = document.getElementById('boxNameBaggi');
+        const longueurBaggiInput = document.getElementById('longueurBaggi');
+        const largeurHauteurBaggiInput = document.getElementById('largeurHauteurBaggi');
+        const resultSectionBaggi = document.getElementById('resultSectionBaggi');
+        const svgPreviewBaggi = document.getElementById('svgPreviewBaggi');
+        const sheetSizeInfoBaggi = document.getElementById('sheetSizeInfoBaggi');
+        // Modulabox
+        const boxNameModulaboxInput = document.getElementById('boxNameModulabox');
+        const hauteurModulaboxInput = document.getElementById('hauteurModulabox');
+        const longueurModulaboxInput = document.getElementById('longueurModulabox');
+        const largeurModulaboxInput = document.getElementById('largeurModulabox');
+        const rabatModulaboxInput = document.getElementById('rabatModulabox');
+        const addLanguettesModulaboxCheckbox = document.getElementById('addLanguettesModulabox');
+        const languetteWidthContainer = document.getElementById('languetteWidthContainer');
+        const largeurLanguetteModulaboxInput = document.getElementById('largeurLanguetteModulabox');
+        const resultSectionModulabox = document.getElementById('resultSectionModulabox');
+        const svgPreviewModulabox = document.getElementById('svgPreviewModulabox');
+        const sheetSizeInfoModulabox = document.getElementById('sheetSizeInfoModulabox');
+        // Katta (NEW)
+        const boxNameKattaInput = document.getElementById('boxNameKatta');
+        const hauteurKattaInput = document.getElementById('hauteurKatta');
+        const longueurKattaInput = document.getElementById('longueurKatta');
+        const largeurKattaInput = document.getElementById('largeurKatta');
+        const sepVKattaInput = document.getElementById('sepVKatta');
+        const sepHKattaInput = document.getElementById('sepHKatta');
+        const resultSectionKatta = document.getElementById('resultSectionKatta');
+        const sheetSizeInfoKatta = document.getElementById('sheetSizeInfoKatta');
+        const svgPreviewKatta = document.getElementById('svgPreviewKatta');
+        const addVerticalLineBtnKatta = document.getElementById('addVerticalLineBtnKatta');
+        const addHorizontalLineBtnKatta = document.getElementById('addHorizontalLineBtnKatta');
+
+        let svgContentForDownload = '';
+        let currentActiveTabId = 'modaMasuTabContent';
+        let currentActiveTabName = 'Boîte Moda Masu';
+
+        // --- Katta Specific State ---
+        let kattaLines = { vertical: [], horizontal: [] };
+        let kattaSheetWidth = 0;
+        let kattaSheetHeight = 0;
+        let kattaBaseSvg = ''; // Store the SVG with just the outline
+
+        // --- Tab Switching Logic --- (Unchanged)
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTabId = button.getAttribute('data-tab');
+                const targetTabName = button.getAttribute('data-tabname') || 'Inconnu';
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                tabContents.forEach(content => {
+                    if (content.id === targetTabId) {
+                        content.classList.add('active');
+                        currentActiveTabId = targetTabId;
+                        currentActiveTabName = targetTabName;
+                        updateButtonLabels();
+                        hideAllResultSections();
+                        downloadSection.classList.add('hidden'); // Hide download on tab switch
+                        errorMessages.textContent = '';
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // --- Modulabox Languette Toggle --- (Unchanged)
+        addLanguettesModulaboxCheckbox.addEventListener('change', () => {
+            if (addLanguettesModulaboxCheckbox.checked) {
+                languetteWidthContainer.classList.remove('hidden');
+            } else {
+                languetteWidthContainer.classList.add('hidden');
+            }
+        });
+
+
+        // Function to update button labels (Unchanged)
+        function updateButtonLabels() {
+             generateBtn.textContent = `Générer le SVG (${currentActiveTabName})`;
+             const downloadTextSuffix = (currentActiveTabId === 'modaMasuTabContent') ? ", sans diagonales" : "";
+             downloadBtn.textContent = `Télécharger SVG (${currentActiveTabName}${downloadTextSuffix})`;
+        }
+
+        // Function to hide all result sections (UPDATED)
+        function hideAllResultSections() {
+             resultSectionModaMasu.classList.add('hidden');
+             resultSectionBaggi.classList.add('hidden');
+             resultSectionModulabox.classList.add('hidden');
+             resultSectionKatta.classList.add('hidden'); // Added Katta
+        }
+
+        // --- SVG Generation Logic ---
+
+        // Function to calculate intersection points (Only for Moda Masu) (Unchanged)
+        function getPerpendicularLineEndpoints(diagonalType, distanceAlongDiagonal, sheetSize) {
+            const T = sheetSize; const sqrt2 = Math.sqrt(2); let points = []; const tolerance = 1e-6;
+            if (Math.abs(T) < tolerance) return null;
+            if (diagonalType === 1) { const C = distanceAlongDiagonal * sqrt2; let candidates = [ { x: 0, y: C }, { x: C, y: 0 }, { x: T, y: C - T }, { x: C - T, y: T } ]; points = candidates.filter(p => p.x >= -tolerance && p.x <= T + tolerance && p.y >= -tolerance && p.y <= T + tolerance ); }
+            else { const C = -T + distanceAlongDiagonal * sqrt2; let candidates = [ { x: 0, y: C }, { x: -C, y: 0 }, { x: T, y: C + T }, { x: T - C, y: T } ]; points = candidates.filter(p => p.x >= -tolerance && p.x <= T + tolerance && p.y >= -tolerance && p.y <= T + tolerance ); }
+            let uniquePoints = []; points.forEach(p => { if (!uniquePoints.some(up => Math.abs(up.x - p.x) < tolerance && Math.abs(up.y - p.y) < tolerance)) { uniquePoints.push(p); } });
+            if (uniquePoints.length >= 2) { return [ Math.max(0, Math.min(T, uniquePoints[0].x)).toFixed(1), Math.max(0, Math.min(T, uniquePoints[0].y)).toFixed(1), Math.max(0, Math.min(T, uniquePoints[1].x)).toFixed(1), Math.max(0, Math.min(T, uniquePoints[1].y)).toFixed(1) ]; }
+            else { console.warn(`No valid intersection points found for: diag=${diagonalType}, dist=${distanceAlongDiagonal}, T=${T}. Points:`, uniquePoints); return null; }
+        }
+
+        // Generate SVG for Moda Masu Box (Unchanged)
+        function generateModaMasuSVG() {
+            const length = parseFloat(document.getElementById('longueurModaMasu').value);
+            const width = parseFloat(document.getElementById('largeurModaMasu').value);
+            const height = parseFloat(document.getElementById('hauteurModaMasu').value);
+            const boxName = boxNameModaMasuInput.value.trim();
+             if (isNaN(length) || isNaN(width) || isNaN(height) || length <= 0 || width <= 0 || height <= 0) { errorMessages.textContent = 'Moda Masu: Dimensions invalides.'; return false; }
+             if (!boxName) { errorMessages.textContent = 'Moda Masu: Nom manquant.'; return false; }
+            const sqrt2 = Math.sqrt(2); const sheetSize = (length + width + 4 * height) / sqrt2;
+            if (sheetSize <= 0 || !isFinite(sheetSize)) { errorMessages.textContent = 'Moda Masu: Taille feuille invalide.'; return false; }
+            sheetSizeInfoModaMasu.textContent = `${sheetSize.toFixed(1)} x ${sheetSize.toFixed(1)} unités`;
+            const diagLen = sheetSize * sqrt2; const diagCenter = diagLen / 2; const T_rounded = sheetSize.toFixed(1);
+             let svgLines = '';
+             const dists1 = [ diagCenter - (length / 2 + 2 * height), diagCenter - (length / 2 + height), diagCenter - (length / 2), diagCenter + (length / 2), diagCenter + (length / 2 + height), diagCenter + (length / 2 + 2 * height) ];
+             dists1.forEach((dist, index) => { if (dist >= 0 && dist <= diagLen) { const coords = getPerpendicularLineEndpoints(1, dist, sheetSize); if (coords) { const side = index < 3 ? 'neg' : 'pos'; const level = index % 3; svgLines += `  <line x1="${coords[0]}" y1="${coords[1]}" x2="${coords[2]}" y2="${coords[3]}" class="fold-line" id="lineL-${side}-${level}"/>\n`; } } });
+             const dists2 = [ diagCenter - (width / 2 + 2 * height), diagCenter - (width / 2 + height), diagCenter - (width / 2), diagCenter + (width / 2), diagCenter + (width / 2 + height), diagCenter + (width / 2 + 2 * height) ];
+             dists2.forEach((dist, index) => { if (dist >= 0 && dist <= diagLen) { const coords = getPerpendicularLineEndpoints(2, dist, sheetSize); if (coords) { const side = index < 3 ? 'neg' : 'pos'; const level = index % 3; svgLines += `  <line x1="${coords[0]}" y1="${coords[1]}" x2="${coords[2]}" y2="${coords[3]}" class="fold-line" id="lineW-${side}-${level}"/>\n`; } } });
+            svgContentForDownload = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="${T_rounded}mm" height="${T_rounded}mm" viewBox="0 0 ${T_rounded} ${T_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>${boxName} - L${length}_l${width}_h${height}</title><desc>Moda Masu Box. Dimensions: L=${length}, l=${width}, h=${height}. Sheet size: ${T_rounded}x${T_rounded}</desc><rect x="0" y="0" width="${T_rounded}" height="${T_rounded}" class="sheet-outline" id="outline"/>${svgLines}</svg>`;
+            const svgContentForPreview = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="${T_rounded}mm" height="${T_rounded}mm" viewBox="0 0 ${T_rounded} ${T_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>Aperçu ${boxName}</title><desc>Aperçu SEULEMENT - diagonales non exportées.</desc><rect x="0" y="0" width="${T_rounded}" height="${T_rounded}" class="sheet-outline" id="outline"/><line x1="0" y1="0" x2="${T_rounded}" y2="${T_rounded}" class="diagonal-line-preview" id="diag1-preview"/><line x1="${T_rounded}" y1="0" x2="0" y2="${T_rounded}" class="diagonal-line-preview" id="diag2-preview"/>${svgLines}</svg>`;
+            svgPreviewModaMasu.innerHTML = svgContentForPreview;
+            resultSectionModaMasu.classList.remove('hidden');
+            return true;
+        }
+
+        // Generate SVG for Baggi Box (Unchanged)
+        function generateBaggiSVG() {
+            errorMessages.textContent = '';
+            const boxName = boxNameBaggiInput.value.trim();
+            const length = parseFloat(longueurBaggiInput.value);
+            const widthHeight = parseFloat(largeurHauteurBaggiInput.value);
+            if (!boxName) { errorMessages.textContent = 'Boîte Baggi: Nom manquant.'; return false; }
+            if (isNaN(length) || length <= 0) { errorMessages.textContent = 'Boîte Baggi: Longueur invalide.'; return false; }
+            if (isNaN(widthHeight) || widthHeight <= 0) { errorMessages.textContent = 'Boîte Baggi: Largeur/Hauteur invalide.'; return false; }
+            const sheetWidth = length + 2 * widthHeight; const sheetHeight = 4 * widthHeight;
+            const W_rounded = sheetWidth.toFixed(1); const H_rounded = sheetHeight.toFixed(1);
+            sheetSizeInfoBaggi.textContent = `${W_rounded} x ${H_rounded} unités`;
+            let svgLines = ''; const x1_vert = widthHeight.toFixed(1); const x2_vert = (widthHeight + length).toFixed(1);
+            const y1_horiz = widthHeight.toFixed(1); const y2_horiz = (2 * widthHeight).toFixed(1); const y3_horiz = (3 * widthHeight).toFixed(1);
+            svgLines += `  <line x1="${x1_vert}" y1="0" x2="${x1_vert}" y2="${H_rounded}" class="fold-line" id="baggi-vert1"/>\n`;
+            svgLines += `  <line x1="${x2_vert}" y1="0" x2="${x2_vert}" y2="${H_rounded}" class="fold-line" id="baggi-vert2"/>\n`;
+            svgLines += `  <line x1="0" y1="${y1_horiz}" x2="${W_rounded}" y2="${y1_horiz}" class="fold-line" id="baggi-horiz1"/>\n`;
+            svgLines += `  <line x1="0" y1="${y2_horiz}" x2="${W_rounded}" y2="${y2_horiz}" class="fold-line" id="baggi-horiz2"/>\n`;
+            svgLines += `  <line x1="0" y1="${y3_horiz}" x2="${W_rounded}" y2="${y3_horiz}" class="fold-line" id="baggi-horiz3"/>\n`;
+            svgLines += `  <line x1="0" y1="0" x2="${x1_vert}" y2="${y1_horiz}" class="fold-line" id="baggi-diag-tl"/>\n`;
+            svgLines += `  <line x1="${x2_vert}" y1="${y1_horiz}" x2="${W_rounded}" y2="0" class="fold-line" id="baggi-diag-tr"/>\n`;
+            svgLines += `  <line x1="0" y1="${y3_horiz}" x2="${x1_vert}" y2="${H_rounded}" class="fold-line" id="baggi-diag-bl"/>\n`;
+            svgLines += `  <line x1="${x2_vert}" y1="${H_rounded}" x2="${W_rounded}" y2="${y3_horiz}" class="fold-line" id="baggi-diag-br"/>\n`;
+            svgContentForDownload = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="${W_rounded}mm" height="${H_rounded}mm" viewBox="0 0 ${W_rounded} ${H_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>${boxName} - L${length}_lh${widthHeight}</title><desc>Boîte Baggi. Dimensions: L=${length}, l/h=${widthHeight}. Taille feuille: ${W_rounded}x${H_rounded}</desc><rect x="0" y="0" width="${W_rounded}" height="${H_rounded}" class="sheet-outline" id="outline"/>${svgLines}</svg>`;
+            const svgContentForPreview = svgContentForDownload;
+            svgPreviewBaggi.innerHTML = svgContentForPreview;
+            resultSectionBaggi.classList.remove('hidden');
+            return true;
+        }
+
+        // Generate SVG for Modulabox (Unchanged)
+        function generateModulaboxSVG() {
+            errorMessages.textContent = '';
+            const boxName = boxNameModulaboxInput.value.trim();
+            const H = parseFloat(hauteurModulaboxInput.value);
+            const L = parseFloat(longueurModulaboxInput.value);
+            const l = parseFloat(largeurModulaboxInput.value);
+            const R = parseFloat(rabatModulaboxInput.value);
+            const addLanguettes = addLanguettesModulaboxCheckbox.checked;
+            let l2 = 0;
+            if (!boxName) { errorMessages.textContent = 'Modulabox: Nom manquant.'; return false; }
+            if (isNaN(H) || H <= 0) { errorMessages.textContent = 'Modulabox: Hauteur invalide.'; return false; }
+            if (isNaN(L) || L <= 0) { errorMessages.textContent = 'Modulabox: Longueur invalide.'; return false; }
+            if (isNaN(l) || l <= 0) { errorMessages.textContent = 'Modulabox: Largeur invalide.'; return false; }
+            if (isNaN(R) || R <= 0) { errorMessages.textContent = 'Modulabox: Rabat invalide.'; return false; }
+            if (addLanguettes) {
+                l2 = parseFloat(largeurLanguetteModulaboxInput.value);
+                if (isNaN(l2) || l2 <= 0) { errorMessages.textContent = 'Modulabox: Largeur de languette (l2) invalide.'; return false; }
+            }
+            const baseWidth = 2 * H + L; const feuilleY_num = R + 2 * H + 2 * l;
+            const feuilleX_total = baseWidth + (addLanguettes ? 2 * l2 : 0); const feuilleY_total = feuilleY_num;
+            const W_total_rounded = feuilleX_total.toFixed(1); const H_total_rounded = feuilleY_total.toFixed(1);
+            sheetSizeInfoModulabox.textContent = `${W_total_rounded} x ${H_total_rounded} unités`;
+            const x_offset = addLanguettes ? l2 : 0;
+            const x_v1_fold = (x_offset + H).toFixed(1); const x_v2_fold = (x_offset + H + L).toFixed(1);
+            const y_svg1 = R.toFixed(1); const y_svg2 = (R + H).toFixed(1); const y_svg3 = (R + H + l).toFixed(1); const y_svg4 = (R + 2*H + l).toFixed(1);
+            const x_lang_fold_left = l2.toFixed(1); const x_lang_fold_right = (x_offset + baseWidth).toFixed(1);
+            let svgElements = '';
+            const mainBoxStartX = x_offset.toFixed(1); const mainBoxEndX = (x_offset + baseWidth).toFixed(1);
+            let pathData = `M ${mainBoxStartX},0 H ${mainBoxEndX} V ${y_svg1} `;
+            if (addLanguettes) { pathData += `H ${W_total_rounded} V ${y_svg3} H ${mainBoxEndX} `; }
+            pathData += `V ${y_svg4} H ${mainBoxStartX} V ${y_svg3} `;
+             if (addLanguettes) { pathData += `H 0 V ${y_svg2} H ${mainBoxStartX} `; }
+            pathData += `V 0 Z`;
+            svgElements += `  <path d="${pathData}" class="sheet-outline" id="outline"/>\n`;
+            svgElements += `  <line x1="${x_v1_fold}" y1="0" x2="${x_v1_fold}" y2="${H_total_rounded}" class="fold-line" id="modula-v1"/>\n`;
+            svgElements += `  <line x1="${x_v2_fold}" y1="0" x2="${x_v2_fold}" y2="${H_total_rounded}" class="fold-line" id="modula-v2"/>\n`;
+            svgElements += `  <line x1="${mainBoxStartX}" y1="${y_svg1}" x2="${mainBoxEndX}" y2="${y_svg1}" class="fold-line" id="modula-h1"/>\n`;
+            const h2_x1 = addLanguettes ? "0" : mainBoxStartX; const h2_x2 = addLanguettes ? W_total_rounded : mainBoxEndX;
+            svgElements += `  <line x1="${h2_x1}" y1="${y_svg2}" x2="${h2_x2}" y2="${y_svg2}" class="fold-line" id="modula-h2"/>\n`;
+            svgElements += `  <line x1="${h2_x1}" y1="${y_svg3}" x2="${h2_x2}" y2="${y_svg3}" class="fold-line" id="modula-h3"/>\n`;
+            svgElements += `  <line x1="${mainBoxStartX}" y1="${y_svg4}" x2="${mainBoxEndX}" y2="${y_svg4}" class="fold-line" id="modula-h4"/>\n`;
+            svgElements += `  <line x1="${mainBoxStartX}" y1="${y_svg1}" x2="${x_v1_fold}" y2="${y_svg2}" class="fold-line" id="modula-diag-tl"/>\n`;
+            svgElements += `  <line x1="${x_v2_fold}" y1="${y_svg2}" x2="${mainBoxEndX}" y2="${y_svg1}" class="fold-line" id="modula-diag-tr"/>\n`;
+            svgElements += `  <line x1="${x_v1_fold}" y1="${y_svg3}" x2="${mainBoxStartX}" y2="${y_svg4}" class="fold-line" id="modula-diag-bl"/>\n`;
+            svgElements += `  <line x1="${mainBoxEndX}" y1="${y_svg4}" x2="${x_v2_fold}" y2="${y_svg3}" class="fold-line" id="modula-diag-br"/>\n`;
+            if (addLanguettes) {
+                const y_tab_top = y_svg2; const y_tab_bottom = y_svg3;
+                svgElements += `  \n`;
+                svgElements += `  <line x1="${x_lang_fold_left}" y1="0" x2="${x_lang_fold_left}" y2="${H_total_rounded}" class="fold-line" id="modula-lang-fold-l"/>\n`; // Corrected: Use fold-line class and full height
+                svgElements += `  <line x1="${x_lang_fold_right}" y1="0" x2="${x_lang_fold_right}" y2="${H_total_rounded}" class="fold-line" id="modula-lang-fold-r"/>\n`; // Corrected: Use fold-line class and full height
+            }
+            svgContentForDownload = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="${W_total_rounded}mm" height="${H_total_rounded}mm" viewBox="0 0 ${W_total_rounded} ${H_total_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>${boxName} - H${H}_L${L}_l${l}_R${R}${addLanguettes ? '_Lang'+l2 : ''}</title><desc>Modulabox. Dimensions: H=${H}, L=${L}, l=${l}, R=${R}. Languettes: ${addLanguettes ? 'Oui ('+l2+'mm)' : 'Non'}. Taille feuille: ${W_total_rounded}x${H_total_rounded}</desc>${svgElements}</svg>`;
+            const svgContentForPreview = svgContentForDownload;
+            svgPreviewModulabox.innerHTML = svgContentForPreview;
+            resultSectionModulabox.classList.remove('hidden');
+            return true;
+        }
+
+
+        // Generate SVG for Katta (NEW IMPLEMENTATION - Initial setup)
+        function generateKattaSVG() {
+            errorMessages.textContent = '';
+             // Reset previous lines when generating new base
+            kattaLines = { vertical: [], horizontal: [] };
+
+            // Get inputs
+            const boxName = boxNameKattaInput.value.trim();
+            const H = parseFloat(hauteurKattaInput.value);
+            const L = parseFloat(longueurKattaInput.value);
+            const l = parseFloat(largeurKattaInput.value); // Note: using 'l' for largeur as per user request
+            const sepV = parseInt(sepVKattaInput.value);
+            const sepH = parseInt(sepHKattaInput.value);
+
+            // Validation
+            if (!boxName) { errorMessages.textContent = 'Katta: Nom manquant.'; return false; }
+            if (isNaN(H) || H <= 0) { errorMessages.textContent = 'Katta: Hauteur (H) invalide.'; return false; }
+            if (isNaN(L) || L <= 0) { errorMessages.textContent = 'Katta: Longueur (L) invalide.'; return false; }
+            if (isNaN(l) || l <= 0) { errorMessages.textContent = 'Katta: Largeur (l) invalide.'; return false; }
+            if (isNaN(sepV) || sepV < 0) { errorMessages.textContent = 'Katta: Nombre Sép. Vert. invalide.'; return false; }
+            if (isNaN(sepH) || sepH < 0) { errorMessages.textContent = 'Katta: Nombre Sép. Horiz. invalide.'; return false; }
+
+            // Calculations
+            kattaSheetWidth = l + 2 * H * sepV;
+            kattaSheetHeight = L + 2 * H * sepH;
+            const W_rounded = kattaSheetWidth.toFixed(1);
+            const H_rounded = kattaSheetHeight.toFixed(1);
+
+            // Display sheet size info
+            sheetSizeInfoKatta.textContent = `${W_rounded} x ${H_rounded} unités`;
+
+            // Generate base SVG (outline only)
+            kattaBaseSvg = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="${W_rounded}mm" height="${H_rounded}mm" viewBox="0 0 ${W_rounded} ${H_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <title>${boxName} - H${H}_L${L}_l${l}_sepV${sepV}_sepH${sepH}</title>
+  <desc>Katta. Dimensions: H=${H}, L=${L}, l=${l}, sepV=${sepV}, sepH=${sepH}. Taille feuille: ${W_rounded}x${H_rounded}</desc>
+  <rect x="0" y="0" width="${W_rounded}" height="${H_rounded}" class="sheet-outline" id="outline"/>
+  </svg>`;
+
+            // Update preview and download content initially
+            updateKattaPreview();
+            resultSectionKatta.classList.remove('hidden'); // Show results section including add buttons
+            return true; // Indicate success
+        }
+
+        // Update Katta Preview with added lines (NEW)
+        function updateKattaPreview() {
+            let svgLines = '';
+            const W_rounded = kattaSheetWidth.toFixed(1);
+            const H_rounded = kattaSheetHeight.toFixed(1);
+
+            kattaLines.vertical.forEach((x, index) => {
+                svgLines += `  <line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${H_rounded}" class="fold-line" id="katta-user-v${index}"/>\n`;
+            });
+            kattaLines.horizontal.forEach((y, index) => {
+                 svgLines += `  <line x1="0" y1="${y.toFixed(1)}" x2="${W_rounded}" y2="${y.toFixed(1)}" class="fold-line" id="katta-user-h${index}"/>\n`;
+            });
+
+            // Combine base SVG and lines
+            // Find the closing </svg> tag and insert lines before it
+            const insertPoint = kattaBaseSvg.lastIndexOf('</svg>');
+            if (insertPoint !== -1) {
+                 svgContentForDownload = kattaBaseSvg.slice(0, insertPoint) + svgLines + kattaBaseSvg.slice(insertPoint);
+            } else {
+                 svgContentForDownload = kattaBaseSvg + svgLines; // Fallback
+            }
+
+            svgPreviewKatta.innerHTML = svgContentForDownload;
+        }
+
+        // Placeholder for Box 4 SVG Generation (Unchanged)
+        function generateBox4SVG() {
+            errorMessages.textContent = '';
+            const boxName = boxNameBox4Input.value.trim();
+            if (!boxName) { errorMessages.textContent = 'Boîte 4: Nom manquant.'; return false; }
+            const dimX = document.getElementById('param1Box4').value || 'N/A';
+            const dimY = document.getElementById('param2Box4').value || 'N/A';
+            const infoText = `DimX: ${dimX}, DimY: ${dimY}`;
+            sheetSizeInfoBox4.textContent = infoText;
+            svgContentForDownload = `<?xml version="1.0"?><svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><title>${boxName} - ${infoText}</title><rect width="120" height="60" fill="none" stroke="lime" class="sheet-outline"/><text x="10" y="30" font-size="10">Boîte 4: ${infoText}</text></svg>`;
+            svgPreviewBox4.innerHTML = svgContentForDownload;
+            resultSectionBox4.classList.remove('hidden');
+            console.log("Generating SVG for Box 4 (Placeholder)");
+            return true;
+        }
+
+
+        // --- Event Listeners for Buttons --- (UPDATED)
+        generateBtn.addEventListener('click', () => {
+            errorMessages.textContent = '';
+            hideAllResultSections();
+            svgContentForDownload = ''; // Clear previous download content
+            let success = false;
+
+            if (currentActiveTabId === 'modaMasuTabContent') {
+                success = generateModaMasuSVG();
+            } else if (currentActiveTabId === 'baggiTabContent') {
+                success = generateBaggiSVG();
+            } else if (currentActiveTabId === 'modulaboxTabContent') {
+                success = generateModulaboxSVG();
+            } else if (currentActiveTabId === 'kattaTabContent') { // Added Katta
+                success = generateKattaSVG(); // This now initializes Katta
+            } else if (currentActiveTabId === 'box4TabContent') {
+                success = generateBox4SVG();
+            }
+
+            // Show download button only if generation was successful (for non-Katta or initial Katta)
+            if (success) {
+                // For Katta, download is enabled, but content updates interactively
+                downloadSection.classList.remove('hidden');
+            } else {
+                 downloadSection.classList.add('hidden');
+            }
+        });
+
+        // Add Line Button Listeners (NEW for Katta)
+        addVerticalLineBtnKatta.addEventListener('click', () => {
+            if (kattaSheetWidth <= 0) {
+                errorMessages.textContent = 'Katta: Veuillez d\'abord générer le SVG de base.';
+                return;
+            }
+            const xInput = prompt(`Entrez l'abscisse (x) pour la ligne verticale (entre 0 et ${kattaSheetWidth.toFixed(1)}):`);
+            if (xInput === null) return; // User cancelled
+            const x = parseFloat(xInput);
+            if (isNaN(x) || x < 0 || x > kattaSheetWidth) {
+                alert(`Valeur invalide. Entrez un nombre entre 0 et ${kattaSheetWidth.toFixed(1)}.`);
+                return;
+            }
+            kattaLines.vertical.push(x);
+            updateKattaPreview();
+        });
+
+        addHorizontalLineBtnKatta.addEventListener('click', () => {
+             if (kattaSheetHeight <= 0) {
+                errorMessages.textContent = 'Katta: Veuillez d\'abord générer le SVG de base.';
+                return;
+            }
+            const yInput = prompt(`Entrez l'ordonnée (y) pour la ligne horizontale (entre 0 et ${kattaSheetHeight.toFixed(1)}):`);
+             if (yInput === null) return; // User cancelled
+            const y = parseFloat(yInput);
+            if (isNaN(y) || y < 0 || y > kattaSheetHeight) {
+                 alert(`Valeur invalide. Entrez un nombre entre 0 et ${kattaSheetHeight.toFixed(1)}.`);
+                return;
+            }
+            kattaLines.horizontal.push(y);
+            updateKattaPreview();
+        });
+
+
+        downloadBtn.addEventListener('click', () => {
+             if (!svgContentForDownload) {
+                // Special check for Katta: If base exists but no lines added yet, allow download of base
+                if (currentActiveTabId === 'kattaTabContent' && kattaBaseSvg) {
+                     svgContentForDownload = kattaBaseSvg; // Use base if no lines added
+                } else {
+                    errorMessages.textContent = 'Veuillez d\'abord générer un SVG valide.'; return;
+                }
+             }
+
+             let filename = 'boite_generee.svg';
+             // Determine filename based on active tab
+             if (currentActiveTabId === 'modaMasuTabContent') {
+                 filename = boxNameModaMasuInput.value.trim() || 'ModaMasuBoite';
+             } else if (currentActiveTabId === 'baggiTabContent') {
+                 filename = boxNameBaggiInput.value.trim() || 'BoiteBaggi';
+             } else if (currentActiveTabId === 'modulaboxTabContent') {
+                 const boxName = boxNameModulaboxInput.value.trim() || 'Modulabox';
+                 const tabsSuffix = addLanguettesModulaboxCheckbox.checked ? '_AvecLanguettes' : '';
+                 filename = `${boxName}${tabsSuffix}`;
+             } else if (currentActiveTabId === 'kattaTabContent') { // Added Katta
+                 filename = boxNameKattaInput.value.trim() || 'Katta';
+             } else if (currentActiveTabId === 'box4TabContent') {
+                  filename = boxNameBox4Input.value.trim() || 'Boite4';
+             }
+
+             filename = filename.replace(/[^a-zA-Z0-9_.-]/g, '_') + '.svg';
+
+             const blob = new Blob([svgContentForDownload], { type: 'image/svg+xml;charset=utf-8' });
+             const url = URL.createObjectURL(blob);
+             const link = document.createElement('a');
+             link.setAttribute('href', url); link.setAttribute('download', filename);
+             link.style.display = 'none'; document.body.appendChild(link);
+             link.click(); document.body.removeChild(link);
+             URL.revokeObjectURL(url);
+        });
+
+         // --- Initial Setup --- (Unchanged)
+         window.addEventListener('load', () => {
+             updateButtonLabels();
+             document.querySelectorAll('input[type="number"]').forEach(input => {
+                 input.step = "0.1";
+             });
+             if (!addLanguettesModulaboxCheckbox.checked) {
+                languetteWidthContainer.classList.add('hidden');
+             }
+         });
+
+    </script>
+</body>
+</html>
