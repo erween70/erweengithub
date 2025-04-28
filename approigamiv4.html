@@ -34,7 +34,7 @@
 
         /* SVG Preview / Line Styling */
         /* Apply styles to all potential preview areas */
-        #svgPreviewModaMasu svg, #svgPreviewBaggi svg, #svgPreviewModulabox svg, #svgPreviewKatta svg { /* Added Katta */
+        #svgPreviewModaMasu svg, #svgPreviewBaggi svg, #svgPreviewModulabox svg, #svgPreviewKatta svg, #svgPreviewCorolles svg {
             max-width: 100%; height: auto; border: 1px solid #eee; display: block; margin: 1rem auto;
         }
         .fold-line { stroke: black; stroke-width: 0.5; }
@@ -60,7 +60,9 @@
                 <button class="tab-button active" data-tab="modaMasuTabContent" data-tabname="Boîte Moda Masu">Boîte Moda Masu</button>
                 <button class="tab-button" data-tab="baggiTabContent" data-tabname="Boîte Baggi">Boîte Baggi</button>
                 <button class="tab-button" data-tab="modulaboxTabContent" data-tabname="Modulabox">Modulabox</button>
-                <button class="tab-button" data-tab="kattaTabContent" data-tabname="Katta">Katta</button> </nav>
+                <button class="tab-button" data-tab="kattaTabContent" data-tabname="Katta">Katta</button>
+                <button class="tab-button" data-tab="corollesTabContent" data-tabname="Corolles">Corolles</button>
+            </nav>
         </div>
 
         <div id="tabContentContainer">
@@ -105,8 +107,10 @@
                   <div id="resultSectionModulabox" class="hidden mt-6"> <p class="text-md text-gray-700 mb-4 text-center"> Dimensions feuille Modulabox : <strong id="sheetSizeInfoModulabox" class="text-purple-600"></strong> </p> <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu Modulabox :</h3> <div id="svgPreviewModulabox" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div> </div>
             </div>
 
-             <div id="kattaTabContent" class="tab-content"> <h2 class="text-xl font-semibold text-center text-lime-700 mb-4">Paramètres - Katta</h2> <p class="text-center text-gray-600 py-4"> Définissez les dimensions de base et le nombre de séparations. </p>
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+             <div id="kattaTabContent" class="tab-content">
+                 <h2 class="text-xl font-semibold text-center text-lime-700 mb-4">Paramètres - Katta</h2>
+                 <p class="text-center text-gray-600 py-4"> Définissez les dimensions de base et le nombre de séparations. </p>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
                      <div class="md:col-span-3"> <label for="boxNameKatta" class="block text-sm font-medium text-gray-700 mb-1">Nom du Katta :</label> <input type="text" id="boxNameKatta" name="boxNameKatta" value="MonKatta" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="Nom pour le fichier"> </div>
                      <div> <label for="hauteurKatta" class="block text-sm font-medium text-gray-700 mb-1">Hauteur (H) :</label> <input type="number" id="hauteurKatta" name="hauteurKatta" min="0.1" step="0.1" value="50" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 50.0"> </div>
                      <div> <label for="longueurKatta" class="block text-sm font-medium text-gray-700 mb-1">Longueur (L) :</label> <input type="number" id="longueurKatta" name="longueurKatta" min="0.1" step="0.1" value="200" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 200.0"> </div>
@@ -114,16 +118,24 @@
                      <div> <label for="sepVKatta" class="block text-sm font-medium text-gray-700 mb-1">Sép. Vert. (sepV) :</label> <input type="number" id="sepVKatta" name="sepVKatta" min="0" step="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 1"> </div>
                      <div> <label for="sepHKatta" class="block text-sm font-medium text-gray-700 mb-1">Sép. Horiz. (sepH) :</label> <input type="number" id="sepHKatta" name="sepHKatta" min="0" step="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-lime-500 focus:border-lime-500" placeholder="ex: 1"> </div>
                  </div>
-                  <div id="resultSectionKatta" class="hidden mt-6"> <p class="text-md text-gray-700 mb-4 text-center"> Dimensions feuille Katta : <strong id="sheetSizeInfoKatta" class="text-lime-600"></strong> </p> <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu Katta :</h3>
-                     <div class="flex justify-center space-x-4 my-4">
-                         <button id="addVerticalLineBtnKatta" class="bg-lime-600 hover:bg-lime-700 text-white text-sm font-bold py-1 px-3 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition duration-150 ease-in-out">
-                             + Ligne Verticale
-                         </button>
-                         <button id="addHorizontalLineBtnKatta" class="bg-lime-600 hover:bg-lime-700 text-white text-sm font-bold py-1 px-3 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition duration-150 ease-in-out">
-                             + Ligne Horizontale
-                         </button>
-                     </div>
-                     <div id="svgPreviewKatta" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div> </div>
+                 <div id="resultSectionKatta" class="hidden mt-6">
+                     <p class="text-md text-gray-700 mb-4 text-center"> Dimensions feuille Katta : <strong id="sheetSizeInfoKatta" class="text-lime-600"></strong> </p>
+                     <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu Katta :</h3>
+                     <div class="flex justify-center space-x-4 my-4"> <button id="addVerticalLineBtnKatta" class="bg-lime-600 hover:bg-lime-700 text-white text-sm font-bold py-1 px-3 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition duration-150 ease-in-out"> + Ligne Verticale </button> <button id="addHorizontalLineBtnKatta" class="bg-lime-600 hover:bg-lime-700 text-white text-sm font-bold py-1 px-3 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition duration-150 ease-in-out"> + Ligne Horizontale </button> </div>
+                     <div id="svgPreviewKatta" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div>
+                 </div>
+            </div>
+
+             <div id="corollesTabContent" class="tab-content">
+                 <h2 class="text-xl font-semibold text-center text-rose-700 mb-4">Paramètres - Corolles</h2>
+                 <p class="text-center text-gray-600 py-4"> Entrez les dimensions de la boîte Corolles. </p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+                     <div class="md:col-span-3"> <label for="boxNameCorolles" class="block text-sm font-medium text-gray-700 mb-1">Nom de la boîte :</label> <input type="text" id="boxNameCorolles" name="boxNameCorolles" value="MesCorolles" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="Nom pour le fichier"> </div>
+                     <div> <label for="longueurCorolles" class="block text-sm font-medium text-gray-700 mb-1">Longueur (L) :</label> <input type="number" id="longueurCorolles" name="longueurCorolles" min="0.1" step="0.1" value="120" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="ex: 120.0"> </div>
+                     <div> <label for="largeurCorolles" class="block text-sm font-medium text-gray-700 mb-1">Largeur (l) :</label> <input type="number" id="largeurCorolles" name="largeurCorolles" min="0.1" step="0.1" value="80" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="ex: 80.0"> </div>
+                     <div> <label for="hauteurCorolles" class="block text-sm font-medium text-gray-700 mb-1">Hauteur (H) :</label> <input type="number" id="hauteurCorolles" name="hauteurCorolles" min="0.1" step="0.1" value="40" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500" placeholder="ex: 40.0"> </div>
+                 </div>
+                  <div id="resultSectionCorolles" class="hidden mt-6"> <p class="text-md text-gray-700 mb-4 text-center"> Dimensions feuille Corolles : <strong id="sheetSizeInfoCorolles" class="text-rose-600"></strong> </p> <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Aperçu Corolles :</h3> <div id="svgPreviewCorolles" class="bg-white rounded-md overflow-hidden mb-4 border border-gray-300"></div> </div>
             </div>
 
             </div>
@@ -175,7 +187,7 @@
         const resultSectionModulabox = document.getElementById('resultSectionModulabox');
         const svgPreviewModulabox = document.getElementById('svgPreviewModulabox');
         const sheetSizeInfoModulabox = document.getElementById('sheetSizeInfoModulabox');
-        // Katta (NEW)
+        // Katta
         const boxNameKattaInput = document.getElementById('boxNameKatta');
         const hauteurKattaInput = document.getElementById('hauteurKatta');
         const longueurKattaInput = document.getElementById('longueurKatta');
@@ -187,6 +199,15 @@
         const svgPreviewKatta = document.getElementById('svgPreviewKatta');
         const addVerticalLineBtnKatta = document.getElementById('addVerticalLineBtnKatta');
         const addHorizontalLineBtnKatta = document.getElementById('addHorizontalLineBtnKatta');
+        // Corolles
+        const boxNameCorollesInput = document.getElementById('boxNameCorolles');
+        const longueurCorollesInput = document.getElementById('longueurCorolles');
+        const largeurCorollesInput = document.getElementById('largeurCorolles');
+        const hauteurCorollesInput = document.getElementById('hauteurCorolles');
+        const resultSectionCorolles = document.getElementById('resultSectionCorolles');
+        const svgPreviewCorolles = document.getElementById('svgPreviewCorolles');
+        const sheetSizeInfoCorolles = document.getElementById('sheetSizeInfoCorolles');
+
 
         let svgContentForDownload = '';
         let currentActiveTabId = 'modaMasuTabContent';
@@ -196,7 +217,7 @@
         let kattaLines = { vertical: [], horizontal: [] };
         let kattaSheetWidth = 0;
         let kattaSheetHeight = 0;
-        let kattaBaseSvg = ''; // Store the SVG with just the outline
+        let kattaBaseSvg = '';
 
         // --- Tab Switching Logic --- (Unchanged)
         tabButtons.forEach(button => {
@@ -212,7 +233,7 @@
                         currentActiveTabName = targetTabName;
                         updateButtonLabels();
                         hideAllResultSections();
-                        downloadSection.classList.add('hidden'); // Hide download on tab switch
+                        downloadSection.classList.add('hidden');
                         errorMessages.textContent = '';
                     } else {
                         content.classList.remove('active');
@@ -243,7 +264,8 @@
              resultSectionModaMasu.classList.add('hidden');
              resultSectionBaggi.classList.add('hidden');
              resultSectionModulabox.classList.add('hidden');
-             resultSectionKatta.classList.add('hidden'); // Added Katta
+             resultSectionKatta.classList.add('hidden');
+             resultSectionCorolles.classList.add('hidden'); // Added Corolles
         }
 
         // --- SVG Generation Logic ---
@@ -362,8 +384,8 @@
             if (addLanguettes) {
                 const y_tab_top = y_svg2; const y_tab_bottom = y_svg3;
                 svgElements += `  \n`;
-                svgElements += `  <line x1="${x_lang_fold_left}" y1="0" x2="${x_lang_fold_left}" y2="${H_total_rounded}" class="fold-line" id="modula-lang-fold-l"/>\n`; // Corrected: Use fold-line class and full height
-                svgElements += `  <line x1="${x_lang_fold_right}" y1="0" x2="${x_lang_fold_right}" y2="${H_total_rounded}" class="fold-line" id="modula-lang-fold-r"/>\n`; // Corrected: Use fold-line class and full height
+                svgElements += `  <line x1="${x_lang_fold_left}" y1="0" x2="${x_lang_fold_left}" y2="${H_total_rounded}" class="fold-line" id="modula-lang-fold-l"/>\n`;
+                svgElements += `  <line x1="${x_lang_fold_right}" y1="0" x2="${x_lang_fold_right}" y2="${H_total_rounded}" class="fold-line" id="modula-lang-fold-r"/>\n`;
             }
             svgContentForDownload = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="${W_total_rounded}mm" height="${H_total_rounded}mm" viewBox="0 0 ${W_total_rounded} ${H_total_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>${boxName} - H${H}_L${L}_l${l}_R${R}${addLanguettes ? '_Lang'+l2 : ''}</title><desc>Modulabox. Dimensions: H=${H}, L=${L}, l=${l}, R=${R}. Languettes: ${addLanguettes ? 'Oui ('+l2+'mm)' : 'Non'}. Taille feuille: ${W_total_rounded}x${H_total_rounded}</desc>${svgElements}</svg>`;
             const svgContentForPreview = svgContentForDownload;
@@ -373,90 +395,108 @@
         }
 
 
-        // Generate SVG for Katta (NEW IMPLEMENTATION - Initial setup)
+        // Generate SVG for Katta (Unchanged)
         function generateKattaSVG() {
             errorMessages.textContent = '';
-             // Reset previous lines when generating new base
             kattaLines = { vertical: [], horizontal: [] };
-
-            // Get inputs
             const boxName = boxNameKattaInput.value.trim();
             const H = parseFloat(hauteurKattaInput.value);
             const L = parseFloat(longueurKattaInput.value);
-            const l = parseFloat(largeurKattaInput.value); // Note: using 'l' for largeur as per user request
+            const l = parseFloat(largeurKattaInput.value);
             const sepV = parseInt(sepVKattaInput.value);
             const sepH = parseInt(sepHKattaInput.value);
-
-            // Validation
             if (!boxName) { errorMessages.textContent = 'Katta: Nom manquant.'; return false; }
             if (isNaN(H) || H <= 0) { errorMessages.textContent = 'Katta: Hauteur (H) invalide.'; return false; }
             if (isNaN(L) || L <= 0) { errorMessages.textContent = 'Katta: Longueur (L) invalide.'; return false; }
             if (isNaN(l) || l <= 0) { errorMessages.textContent = 'Katta: Largeur (l) invalide.'; return false; }
             if (isNaN(sepV) || sepV < 0) { errorMessages.textContent = 'Katta: Nombre Sép. Vert. invalide.'; return false; }
             if (isNaN(sepH) || sepH < 0) { errorMessages.textContent = 'Katta: Nombre Sép. Horiz. invalide.'; return false; }
-
-            // Calculations
-            kattaSheetWidth = l + 2 * H * sepV;
-            kattaSheetHeight = L + 2 * H * sepH;
-            const W_rounded = kattaSheetWidth.toFixed(1);
-            const H_rounded = kattaSheetHeight.toFixed(1);
-
-            // Display sheet size info
+            kattaSheetWidth = l + 2 * H * sepV; kattaSheetHeight = L + 2 * H * sepH;
+            const W_rounded = kattaSheetWidth.toFixed(1); const H_rounded = kattaSheetHeight.toFixed(1);
             sheetSizeInfoKatta.textContent = `${W_rounded} x ${H_rounded} unités`;
-
-            // Generate base SVG (outline only)
-            kattaBaseSvg = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="${W_rounded}mm" height="${H_rounded}mm" viewBox="0 0 ${W_rounded} ${H_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1">
-  <title>${boxName} - H${H}_L${L}_l${l}_sepV${sepV}_sepH${sepH}</title>
-  <desc>Katta. Dimensions: H=${H}, L=${L}, l=${l}, sepV=${sepV}, sepH=${sepH}. Taille feuille: ${W_rounded}x${H_rounded}</desc>
-  <rect x="0" y="0" width="${W_rounded}" height="${H_rounded}" class="sheet-outline" id="outline"/>
-  </svg>`;
-
-            // Update preview and download content initially
+            kattaBaseSvg = `<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="${W_rounded}mm" height="${H_rounded}mm" viewBox="0 0 ${W_rounded} ${H_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>${boxName} - H${H}_L${L}_l${l}_sepV${sepV}_sepH${sepH}</title><desc>Katta. Dimensions: H=${H}, L=${L}, l=${l}, sepV=${sepV}, sepH=${sepH}. Taille feuille: ${W_rounded}x${H_rounded}</desc><rect x="0" y="0" width="${W_rounded}" height="${H_rounded}" class="sheet-outline" id="outline"/></svg>`;
             updateKattaPreview();
-            resultSectionKatta.classList.remove('hidden'); // Show results section including add buttons
-            return true; // Indicate success
+            resultSectionKatta.classList.remove('hidden');
+            return true;
         }
 
-        // Update Katta Preview with added lines (NEW)
+        // Update Katta Preview with added lines (Unchanged)
         function updateKattaPreview() {
-            let svgLines = '';
-            const W_rounded = kattaSheetWidth.toFixed(1);
-            const H_rounded = kattaSheetHeight.toFixed(1);
-
-            kattaLines.vertical.forEach((x, index) => {
-                svgLines += `  <line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${H_rounded}" class="fold-line" id="katta-user-v${index}"/>\n`;
-            });
-            kattaLines.horizontal.forEach((y, index) => {
-                 svgLines += `  <line x1="0" y1="${y.toFixed(1)}" x2="${W_rounded}" y2="${y.toFixed(1)}" class="fold-line" id="katta-user-h${index}"/>\n`;
-            });
-
-            // Combine base SVG and lines
-            // Find the closing </svg> tag and insert lines before it
+            let svgLines = ''; const W_rounded = kattaSheetWidth.toFixed(1); const H_rounded = kattaSheetHeight.toFixed(1);
+            kattaLines.vertical.forEach((x, index) => { svgLines += `  <line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${H_rounded}" class="fold-line" id="katta-user-v${index}"/>\n`; });
+            kattaLines.horizontal.forEach((y, index) => { svgLines += `  <line x1="0" y1="${y.toFixed(1)}" x2="${W_rounded}" y2="${y.toFixed(1)}" class="fold-line" id="katta-user-h${index}"/>\n`; });
             const insertPoint = kattaBaseSvg.lastIndexOf('</svg>');
-            if (insertPoint !== -1) {
-                 svgContentForDownload = kattaBaseSvg.slice(0, insertPoint) + svgLines + kattaBaseSvg.slice(insertPoint);
-            } else {
-                 svgContentForDownload = kattaBaseSvg + svgLines; // Fallback
-            }
-
+            if (insertPoint !== -1) { svgContentForDownload = kattaBaseSvg.slice(0, insertPoint) + svgLines + kattaBaseSvg.slice(insertPoint); }
+            else { svgContentForDownload = kattaBaseSvg + svgLines; }
             svgPreviewKatta.innerHTML = svgContentForDownload;
         }
 
-        // Placeholder for Box 4 SVG Generation (Unchanged)
-        function generateBox4SVG() {
+        // Generate SVG for Corolles (UPDATED with corner diagonals)
+        function generateCorollesSVG() {
             errorMessages.textContent = '';
-            const boxName = boxNameBox4Input.value.trim();
-            if (!boxName) { errorMessages.textContent = 'Boîte 4: Nom manquant.'; return false; }
-            const dimX = document.getElementById('param1Box4').value || 'N/A';
-            const dimY = document.getElementById('param2Box4').value || 'N/A';
-            const infoText = `DimX: ${dimX}, DimY: ${dimY}`;
-            sheetSizeInfoBox4.textContent = infoText;
-            svgContentForDownload = `<?xml version="1.0"?><svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><title>${boxName} - ${infoText}</title><rect width="120" height="60" fill="none" stroke="lime" class="sheet-outline"/><text x="10" y="30" font-size="10">Boîte 4: ${infoText}</text></svg>`;
-            svgPreviewBox4.innerHTML = svgContentForDownload;
-            resultSectionBox4.classList.remove('hidden');
-            console.log("Generating SVG for Box 4 (Placeholder)");
-            return true;
+             // Get inputs
+            const boxName = boxNameCorollesInput.value.trim();
+            const L = parseFloat(longueurCorollesInput.value);
+            const l = parseFloat(largeurCorollesInput.value);
+            const H = parseFloat(hauteurCorollesInput.value);
+
+            // Validation
+            if (!boxName) { errorMessages.textContent = 'Corolles: Nom manquant.'; return false; }
+            if (isNaN(L) || L <= 0) { errorMessages.textContent = 'Corolles: Longueur (L) invalide.'; return false; }
+            if (isNaN(l) || l <= 0) { errorMessages.textContent = 'Corolles: Largeur (l) invalide.'; return false; }
+            if (isNaN(H) || H <= 0) { errorMessages.textContent = 'Corolles: Hauteur (H) invalide.'; return false; }
+
+
+            // Calculations
+            const sheetWidth = l + 2 * H;
+            const sheetHeight = L + 2 * H;
+            const W_rounded = sheetWidth.toFixed(1);
+            const H_rounded = sheetHeight.toFixed(1);
+
+            // Display sheet size info
+            sheetSizeInfoCorolles.textContent = `${W_rounded} x ${H_rounded} unités`;
+
+            // Calculate line coordinates (rounded to 1 decimal)
+            const x1 = H.toFixed(1);
+            const x2 = (H + l).toFixed(1);
+            const y1 = H.toFixed(1);
+            const y2 = (H + L).toFixed(1);
+
+            // Generate SVG lines
+            let svgLines = '';
+            // Vertical lines
+            svgLines += `  <line x1="${x1}" y1="0" x2="${x1}" y2="${H_rounded}" class="fold-line" id="corolles-v1"/>\n`;
+            svgLines += `  <line x1="${x2}" y1="0" x2="${x2}" y2="${H_rounded}" class="fold-line" id="corolles-v2"/>\n`;
+            // Horizontal lines
+            svgLines += `  <line x1="0" y1="${y1}" x2="${W_rounded}" y2="${y1}" class="fold-line" id="corolles-h1"/>\n`;
+            svgLines += `  <line x1="0" y1="${y2}" x2="${W_rounded}" y2="${y2}" class="fold-line" id="corolles-h2"/>\n`;
+
+            // Corner diagonal lines (NEW)
+            // Top-left: (0,0) to (x1, y1)
+            svgLines += `  <line x1="0" y1="0" x2="${x1}" y2="${y1}" class="fold-line" id="corolles-diag-tl"/>\n`;
+            // Top-right: (W_rounded, 0) to (x2, y1)
+            svgLines += `  <line x1="${W_rounded}" y1="0" x2="${x2}" y2="${y1}" class="fold-line" id="corolles-diag-tr"/>\n`;
+            // Bottom-left: (0, H_rounded) to (x1, y2)
+            svgLines += `  <line x1="0" y1="${H_rounded}" x2="${x1}" y2="${y2}" class="fold-line" id="corolles-diag-bl"/>\n`;
+            // Bottom-right: (W_rounded, H_rounded) to (x2, y2)
+            svgLines += `  <line x1="${W_rounded}" y1="${H_rounded}" x2="${x2}" y2="${y2}" class="fold-line" id="corolles-diag-br"/>\n`;
+
+
+            // Create SVG content
+            svgContentForDownload = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="${W_rounded}mm" height="${H_rounded}mm" viewBox="0 0 ${W_rounded} ${H_rounded}" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <title>${boxName} - L${L}_l${l}_H${H}</title>
+  <desc>Corolles. Dimensions: L=${L}, l=${l}, H=${H}. Taille feuille: ${W_rounded}x${H_rounded}</desc>
+  <rect x="0" y="0" width="${W_rounded}" height="${H_rounded}" class="sheet-outline" id="outline"/>
+  ${svgLines}
+</svg>`;
+             const svgContentForPreview = svgContentForDownload;
+
+             // Display preview
+             svgPreviewCorolles.innerHTML = svgContentForPreview;
+             resultSectionCorolles.classList.remove('hidden');
+             console.log("Generating SVG for Corolles");
+             return true; // Indicate success
         }
 
 
@@ -464,7 +504,7 @@
         generateBtn.addEventListener('click', () => {
             errorMessages.textContent = '';
             hideAllResultSections();
-            svgContentForDownload = ''; // Clear previous download content
+            svgContentForDownload = '';
             let success = false;
 
             if (currentActiveTabId === 'modaMasuTabContent') {
@@ -473,63 +513,40 @@
                 success = generateBaggiSVG();
             } else if (currentActiveTabId === 'modulaboxTabContent') {
                 success = generateModulaboxSVG();
-            } else if (currentActiveTabId === 'kattaTabContent') { // Added Katta
-                success = generateKattaSVG(); // This now initializes Katta
-            } else if (currentActiveTabId === 'box4TabContent') {
-                success = generateBox4SVG();
+            } else if (currentActiveTabId === 'kattaTabContent') {
+                success = generateKattaSVG();
+            } else if (currentActiveTabId === 'corollesTabContent') { // Added Corolles
+                success = generateCorollesSVG(); // Call new function
             }
 
-            // Show download button only if generation was successful (for non-Katta or initial Katta)
             if (success) {
-                // For Katta, download is enabled, but content updates interactively
                 downloadSection.classList.remove('hidden');
             } else {
                  downloadSection.classList.add('hidden');
             }
         });
 
-        // Add Line Button Listeners (NEW for Katta)
+        // Add Line Button Listeners for Katta (Unchanged)
         addVerticalLineBtnKatta.addEventListener('click', () => {
-            if (kattaSheetWidth <= 0) {
-                errorMessages.textContent = 'Katta: Veuillez d\'abord générer le SVG de base.';
-                return;
-            }
+            if (kattaSheetWidth <= 0) { errorMessages.textContent = 'Katta: Veuillez d\'abord générer le SVG de base.'; return; }
             const xInput = prompt(`Entrez l'abscisse (x) pour la ligne verticale (entre 0 et ${kattaSheetWidth.toFixed(1)}):`);
-            if (xInput === null) return; // User cancelled
-            const x = parseFloat(xInput);
-            if (isNaN(x) || x < 0 || x > kattaSheetWidth) {
-                alert(`Valeur invalide. Entrez un nombre entre 0 et ${kattaSheetWidth.toFixed(1)}.`);
-                return;
-            }
-            kattaLines.vertical.push(x);
-            updateKattaPreview();
+            if (xInput === null) return; const x = parseFloat(xInput);
+            if (isNaN(x) || x < 0 || x > kattaSheetWidth) { alert(`Valeur invalide. Entrez un nombre entre 0 et ${kattaSheetWidth.toFixed(1)}.`); return; }
+            kattaLines.vertical.push(x); updateKattaPreview();
         });
-
         addHorizontalLineBtnKatta.addEventListener('click', () => {
-             if (kattaSheetHeight <= 0) {
-                errorMessages.textContent = 'Katta: Veuillez d\'abord générer le SVG de base.';
-                return;
-            }
+             if (kattaSheetHeight <= 0) { errorMessages.textContent = 'Katta: Veuillez d\'abord générer le SVG de base.'; return; }
             const yInput = prompt(`Entrez l'ordonnée (y) pour la ligne horizontale (entre 0 et ${kattaSheetHeight.toFixed(1)}):`);
-             if (yInput === null) return; // User cancelled
-            const y = parseFloat(yInput);
-            if (isNaN(y) || y < 0 || y > kattaSheetHeight) {
-                 alert(`Valeur invalide. Entrez un nombre entre 0 et ${kattaSheetHeight.toFixed(1)}.`);
-                return;
-            }
-            kattaLines.horizontal.push(y);
-            updateKattaPreview();
+             if (yInput === null) return; const y = parseFloat(yInput);
+            if (isNaN(y) || y < 0 || y > kattaSheetHeight) { alert(`Valeur invalide. Entrez un nombre entre 0 et ${kattaSheetHeight.toFixed(1)}.`); return; }
+            kattaLines.horizontal.push(y); updateKattaPreview();
         });
 
 
         downloadBtn.addEventListener('click', () => {
              if (!svgContentForDownload) {
-                // Special check for Katta: If base exists but no lines added yet, allow download of base
-                if (currentActiveTabId === 'kattaTabContent' && kattaBaseSvg) {
-                     svgContentForDownload = kattaBaseSvg; // Use base if no lines added
-                } else {
-                    errorMessages.textContent = 'Veuillez d\'abord générer un SVG valide.'; return;
-                }
+                if (currentActiveTabId === 'kattaTabContent' && kattaBaseSvg) { svgContentForDownload = kattaBaseSvg; }
+                else { errorMessages.textContent = 'Veuillez d\'abord générer un SVG valide.'; return; }
              }
 
              let filename = 'boite_generee.svg';
@@ -542,10 +559,10 @@
                  const boxName = boxNameModulaboxInput.value.trim() || 'Modulabox';
                  const tabsSuffix = addLanguettesModulaboxCheckbox.checked ? '_AvecLanguettes' : '';
                  filename = `${boxName}${tabsSuffix}`;
-             } else if (currentActiveTabId === 'kattaTabContent') { // Added Katta
+             } else if (currentActiveTabId === 'kattaTabContent') {
                  filename = boxNameKattaInput.value.trim() || 'Katta';
-             } else if (currentActiveTabId === 'box4TabContent') {
-                  filename = boxNameBox4Input.value.trim() || 'Boite4';
+             } else if (currentActiveTabId === 'corollesTabContent') { // Added Corolles
+                  filename = boxNameCorollesInput.value.trim() || 'Corolles';
              }
 
              filename = filename.replace(/[^a-zA-Z0-9_.-]/g, '_') + '.svg';
@@ -573,3 +590,4 @@
     </script>
 </body>
 </html>
+
