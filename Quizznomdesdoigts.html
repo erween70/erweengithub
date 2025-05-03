@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Noms des Doigts (Guitare)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Styles personnalisés */
+        .highlighted-finger {
+            fill: #4ade80; /* Vert pour le doigt sélectionné */
+            stroke: #22c55e; /* Vert plus foncé pour le contour */
+            stroke-width: 3;
+            transition: fill 0.3s ease;
+        }
+        .finger {
+            fill: #f3e8ff; /* Couleur par défaut des doigts */
+            stroke: #a855f7;
+            stroke-width: 1.5;
+            cursor: default;
+            transition: fill 0.3s ease;
+        }
+        .palm {
+             fill: #e9d5ff; /* Couleur de la paume */
+             stroke: #9333ea;
+             stroke-width: 1.5;
+        }
+        /* Style pour le feedback */
+        .correct {
+            color: #16a34a; /* Vert */
+            font-weight: bold;
+        }
+        .incorrect {
+            color: #dc2626; /* Rouge */
+            font-weight: bold;
+        }
+        /* Style pour les boutons */
+        .answer-button {
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .answer-button:hover {
+            transform: scale(1.03);
+        }
+         .answer-button:active {
+            transform: scale(0.98);
+        }
+        /* Style pour la flèche */
+        #pointing-arrow {
+            fill: #581c87; /* Violet foncé pour la flèche */
+            transition: transform 0.3s ease; /* Animation douce du déplacement */
+            visibility: hidden; /* Cachée par défaut */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-100 to-indigo-200 flex flex-col items-center justify-center min-h-screen font-sans p-4">
+
+    <div class="bg-white rounded-xl shadow-2xl p-6 md:p-10 w-full max-w-2xl text-center">
+
+        <h1 class="text-2xl md:text-3xl font-bold text-purple-800 mb-6">Quiz : Les Doigts de la Main</h1>
+
+        <div id="quiz-container">
+            <div class="mb-6 flex justify-center relative"> <svg id="hand-svg" viewBox="0 0 200 250" class="w-48 h-auto md:w-64">
+                    <path id="palm" class="palm" d="M 50 150 Q 40 100 70 80 T 130 80 Q 160 100 150 150 L 145 230 Q 140 240 130 240 H 70 Q 60 240 55 230 Z" />
+                    <path id="finger-index" class="finger" d="M 70 80 Q 65 40 75 30 Q 85 40 80 80 Z" />
+                    <path id="finger-majeur" class="finger" d="M 90 80 Q 85 25 95 15 Q 105 25 100 80 Z" />
+                    <path id="finger-annulaire" class="finger" d="M 110 80 Q 105 35 115 25 Q 125 35 120 80 Z" />
+                    <path id="finger-petit_doigt" class="finger" d="M 130 80 Q 125 50 135 40 Q 145 50 140 80 Z" />
+                    <path id="thumb" class="finger" d="M 50 150 Q 20 140 25 110 Q 30 100 45 115 L 50 150" />
+
+                    <polygon id="pointing-arrow" points="0,-10 5,0 0,10 -5,0" transform="translate(100, 0)" />
+                 </svg>
+            </div>
+
+            <p id="question-text" class="text-lg md:text-xl text-gray-700 mb-6">Quel est le nom de ce doigt ?</p>
+
+            <div id="answer-options" class="grid grid-cols-2 gap-4 mb-6">
+                </div>
+
+            <div id="feedback" class="h-6 mb-4 text-lg">&nbsp;</div>
+
+            <div class="flex justify-between items-center text-purple-700">
+                 <p id="score" class="text-lg">Score : 0 / 0</p>
+                 <p id="progress" class="text-lg">Question : 1 / 10</p>
+            </div>
+        </div>
+
+        <div id="results-container" class="hidden text-center">
+            <h2 class="text-2xl font-bold text-purple-800 mb-4">Quiz Terminé !</h2>
+            <p id="final-score" class="text-xl text-gray-700 mb-6">Votre score final est : 8 / 10</p>
+            <button id="restart-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                Recommencer le Quiz
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Éléments du DOM ---
+        const handSvg = document.getElementById('hand-svg');
+        const fingerElements = {
+            'Index': handSvg.getElementById('finger-index'),
+            'Majeur': handSvg.getElementById('finger-majeur'),
+            'Annulaire': handSvg.getElementById('finger-annulaire'),
+            'Petit Doigt': handSvg.getElementById('finger-petit_doigt')
+        };
+        const pointingArrow = document.getElementById('pointing-arrow'); // Nouvel élément flèche
+        const answerOptionsContainer = document.getElementById('answer-options');
+        const feedbackElement = document.getElementById('feedback');
+        const scoreElement = document.getElementById('score');
+        const progressElement = document.getElementById('progress');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const finalScoreElement = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+
+        // --- Données du Quiz ---
+        const fingerNames = ['Index', 'Majeur', 'Annulaire', 'Petit Doigt'];
+        const totalQuestions = 10;
+        // Positions approximatives X, Y pour la flèche au-dessus de chaque doigt
+        const arrowPositions = {
+            'Index': { x: 75, y: 15 },
+            'Majeur': { x: 95, y: 5 },
+            'Annulaire': { x: 115, y: 15 },
+            'Petit Doigt': { x: 135, y: 30 }
+        };
+
+
+        // --- État du Quiz ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let currentCorrectAnswer = '';
+        let acceptingAnswers = true;
+
+        // --- Fonctions ---
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Réinitialise la mise en évidence et cache la flèche.
+         */
+        function resetHighlightsAndArrow() {
+            Object.values(fingerElements).forEach(finger => {
+                if (finger) {
+                    finger.classList.remove('highlighted-finger');
+                    if (!finger.classList.contains('finger')) {
+                         finger.classList.add('finger');
+                    }
+                }
+            });
+            // Cache la flèche
+            pointingArrow.style.visibility = 'hidden';
+        }
+
+        /**
+         * Génère et affiche une nouvelle question.
+         */
+        function generateQuestion() {
+            if (currentQuestionIndex >= totalQuestions) {
+                showResults();
+                return;
+            }
+
+            acceptingAnswers = true;
+            feedbackElement.innerHTML = '&nbsp;';
+            resetHighlightsAndArrow(); // Réinitialise avant de générer
+
+            // 1. Choisir un doigt aléatoire
+            currentCorrectAnswer = fingerNames[Math.floor(Math.random() * fingerNames.length)];
+
+            // 2. Mettre en évidence le doigt
+            const fingerToHighlight = fingerElements[currentCorrectAnswer.replace(' ', '_')];
+             if (fingerToHighlight) {
+                 fingerToHighlight.classList.add('highlighted-finger');
+             } else {
+                 console.error("Élément SVG non trouvé pour :", currentCorrectAnswer);
+                 generateQuestion(); // Relance si erreur
+                 return;
+             }
+
+            // 3. Positionner et afficher la flèche
+            const arrowPos = arrowPositions[currentCorrectAnswer];
+            if (arrowPos) {
+                // Applique la transformation pour déplacer la flèche
+                pointingArrow.setAttribute('transform', `translate(${arrowPos.x}, ${arrowPos.y}) rotate(90)`); // Rotation pour pointer vers le doigt
+                // Rend la flèche visible
+                pointingArrow.style.visibility = 'visible';
+            } else {
+                 console.error("Position de flèche non définie pour :", currentCorrectAnswer);
+                 pointingArrow.style.visibility = 'hidden'; // Cache si position non trouvée
+            }
+
+
+            // 4. Préparer et mélanger les options
+            const options = [...fingerNames];
+            const shuffledOptions = shuffleArray(options);
+
+            // 5. Afficher les options
+            answerOptionsContainer.innerHTML = '';
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add(
+                    'answer-button', 'bg-purple-500', 'hover:bg-purple-600', 'text-white',
+                    'font-semibold', 'py-3', 'px-4', 'rounded-lg', 'shadow', 'w-full', 'text-sm', 'md:text-base'
+                );
+                button.onclick = () => checkAnswer(option);
+                answerOptionsContainer.appendChild(button);
+            });
+
+            // 6. Mettre à jour la progression
+            updateProgress();
+        }
+
+        /**
+         * Vérifie la réponse sélectionnée.
+         */
+        function checkAnswer(selectedAnswer) {
+            if (!acceptingAnswers) return;
+            acceptingAnswers = false;
+
+            const isCorrect = selectedAnswer === currentCorrectAnswer;
+
+            // Feedback visuel sur les boutons
+            Array.from(answerOptionsContainer.children).forEach(button => {
+                button.disabled = true;
+                if (button.textContent === currentCorrectAnswer) {
+                    button.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+                    button.classList.add('bg-green-500');
+                } else if (button.textContent === selectedAnswer && !isCorrect) {
+                     button.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+                    button.classList.add('bg-red-500');
+                } else {
+                     button.classList.remove('hover:bg-purple-600');
+                }
+            });
+
+            // Affichage du feedback textuel
+            if (isCorrect) {
+                feedbackElement.textContent = 'Correct !';
+                feedbackElement.className = 'correct h-6 mb-4 text-lg';
+                score++;
+            } else {
+                feedbackElement.textContent = `Incorrect. C'était : ${currentCorrectAnswer}`;
+                feedbackElement.className = 'incorrect h-6 mb-4 text-lg';
+            }
+
+            currentQuestionIndex++;
+            updateScore();
+
+            // Passe à la question suivante après un délai
+            setTimeout(() => {
+                 generateQuestion();
+            }, 1500);
+        }
+
+        /**
+         * Met à jour l'affichage du score.
+         */
+        function updateScore() {
+            scoreElement.textContent = `Score : ${score} / ${currentQuestionIndex}`;
+        }
+
+         /**
+         * Met à jour l'affichage de la progression.
+         */
+        function updateProgress() {
+             const displayQuestionNumber = Math.min(currentQuestionIndex + 1, totalQuestions);
+             progressElement.textContent = `Question : ${displayQuestionNumber} / ${totalQuestions}`;
+             scoreElement.textContent = `Score : ${score} / ${currentQuestionIndex}`;
+        }
+
+
+        /**
+         * Affiche l'écran des résultats finaux.
+         */
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            finalScoreElement.textContent = `Votre score final est : ${score} / ${totalQuestions}`;
+            resetHighlightsAndArrow(); // Cache la flèche aussi sur l'écran final
+        }
+
+        /**
+         * Réinitialise et redémarre le quiz.
+         */
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            acceptingAnswers = true;
+            resultsContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            feedbackElement.innerHTML = '&nbsp;';
+            updateScore();
+            generateQuestion();
+        }
+
+        // --- Initialisation ---
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Lance la première question
+        generateQuestion();
+
+    </script>
+
+</body>
+</html>
