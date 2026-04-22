@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz : 7 Clefs de la Stratégie en Transe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(5px);
+            background-color: rgba(20, 184, 166, 0.2);
+            border-color: #14b8a6;
+        }
+        .option-btn:disabled {
+            cursor: default;
+        }
+        .correct-ans {
+            background-color: rgba(34, 197, 94, 0.2) !important;
+            border-color: #22c55e !important;
+            color: #4ade80;
+        }
+        .wrong-ans {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+            color: #f87171;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <!-- App Container -->
+    <div class="w-full max-w-3xl bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 overflow-hidden relative">
+        
+        <!-- Header -->
+        <header class="bg-slate-900/50 p-6 border-b border-slate-700 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-brand-500">Stratégie en Transe</h1>
+                <p class="text-slate-400 text-sm mt-1">Quiz de validation des connaissances</p>
+            </div>
+            <div class="w-12 h-12 bg-brand-500/20 rounded-full flex items-center justify-center text-brand-500 text-xl border border-brand-500/30">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+        </header>
+
+        <!-- Progress Bar (Hidden initially) -->
+        <div id="progress-container" class="w-full bg-slate-700 h-1.5 hidden">
+            <div id="progress-bar" class="bg-brand-500 h-1.5 w-0 transition-all duration-300"></div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="p-6 md:p-8 min-h-[400px] flex flex-col justify-center">
+            
+            <!-- Screen 1: Start -->
+            <div id="screen-start" class="text-center fade-in">
+                <div class="mb-6">
+                    <i class="fa-solid fa-layer-group text-5xl text-brand-500 mb-4"></i>
+                    <h2 class="text-2xl font-bold mb-4">Maîtrisez les 7 Clefs</h2>
+                    <p class="text-slate-300 mb-6 max-w-xl mx-auto leading-relaxed">
+                        Testez vos connaissances sur l'architecture de la transe, du Primus jusqu'à la Garde Descendante. 
+                        Ce quiz comporte 20 questions basées sur la structure formelle de l'accompagnement.
+                    </p>
+                </div>
+                <button onclick="startQuiz()" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-brand-500/20 transition-all transform hover:-translate-y-1">
+                    Commencer le Quiz
+                </button>
+            </div>
+
+            <!-- Screen 2: Question -->
+            <div id="screen-question" class="hidden fade-in w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="question-counter" class="text-brand-500 font-semibold text-sm tracking-wider uppercase">Question 1/20</span>
+                    <span id="score-display" class="bg-slate-700 px-3 py-1 rounded-full text-xs font-bold">Score: 0</span>
+                </div>
+                
+                <h3 id="question-text" class="text-xl md:text-2xl font-medium mb-8 leading-snug"></h3>
+                
+                <div id="options-container" class="space-y-3 mb-8">
+                    <!-- Options injected here -->
+                </div>
+
+                <!-- Explanation Box -->
+                <div id="explanation-box" class="hidden bg-slate-700/50 border-l-4 border-brand-500 p-4 rounded-r-lg mb-6 fade-in">
+                    <p id="explanation-text" class="text-sm text-slate-200 italic"></p>
+                </div>
+
+                <div class="flex justify-end mt-4">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2 px-6 rounded-lg transition-all flex items-center gap-2">
+                        Suivant <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screen 3: Results -->
+            <div id="screen-results" class="hidden text-center fade-in">
+                <div class="mb-8">
+                    <div id="result-icon" class="text-6xl mb-4">🏆</div>
+                    <h2 class="text-3xl font-bold mb-2">Quiz Terminé !</h2>
+                    <p id="final-score" class="text-2xl font-light text-brand-500 mb-4"></p>
+                    <p id="result-message" class="text-slate-300 max-w-md mx-auto"></p>
+                </div>
+                <button onclick="resetQuiz()" class="bg-slate-700 hover:bg-slate-600 border border-slate-500 text-white font-semibold py-3 px-8 rounded-xl transition-all shadow-lg">
+                    Recommencer l'évaluation
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Quelle est la règle absolue concernant la surface projective lors du Primus (pre-talk et anamnèse) ?",
+                options: [
+                    "Il faut l'explorer en détail dès le début.",
+                    "On ne doit pas travailler sur la surface projective.",
+                    "Elle doit être définie par l'hypnotiseur.",
+                    "Elle sert de base à la futurisation."
+                ],
+                correct: 1,
+                explanation: "C'est une mise en garde majeure du Primus : on ne doit pas travailler sur la surface projective lors de la phase de pre-talk et d'anamnèse."
+            },
+            {
+                question: "Lors de l'étape 1 (La garde montante), quel est l'objectif principal ?",
+                options: [
+                    "Tester l'idéomotricité du sujet.",
+                    "Trouver le point chaud de la transe.",
+                    "Poser des constructions pour que la personne construise son architecture projective.",
+                    "Provoquer une amnésie partielle."
+                ],
+                correct: 2,
+                explanation: "L'étape 1 consiste à impliquer le sujet en posant des constructions afin de lui offrir des choix viables pour entrer en transe."
+            },
+            {
+                question: "Dans l'étape 2 (L'approfondissement), pourquoi faut-il retirer les mots comme 'imagine que' ?",
+                options: [
+                    "Parce que cela provoque des résistances physiques.",
+                    "Parce qu'on rajoute du cognitif au processus.",
+                    "Parce que cela diminue la charge émotionnelle.",
+                    "Parce que le sujet pourrait s'endormir."
+                ],
+                correct: 1,
+                explanation: "Il faut éviter 'imagine que' car cela ajoute une charge cognitive. On préférera des formulations directes comme 'où te situes-tu ?'."
+            },
+            {
+                question: "Comment est considérée la 'safe place' dans cette structure (Étape 2) ?",
+                options: [
+                    "Comme la zone de travail finale.",
+                    "Comme un passage transitoire vers la workplace.",
+                    "Comme un endroit inutile qu'il faut contourner.",
+                    "Comme un outil de futurisation."
+                ],
+                correct: 1,
+                explanation: "La safe place n'est pas utilisée pour les ressources qui s'y trouvent, mais comme un passage transitoire pour aller bosser dans la workplace."
+            },
+            {
+                question: "Que faire si la personne refuse d'aller sur le chemin vers la workplace car elle ne s'en sent pas capable (Étape 2) ?",
+                options: [
+                    "On arrête immédiatement la séance.",
+                    "On force la suggestion avec autorité.",
+                    "L'étape 2 devient elle-même la workplace pour travailler sur cette incapacité.",
+                    "On passe directement à l'étape 4 (le contrôle set)."
+                ],
+                correct: 2,
+                explanation: "Si un blocage empêche d'avancer, l'étape 2 devient la surface de travail de la séance pour comprendre pourquoi la personne ne se sent pas capable d'y aller."
+            },
+            {
+                question: "Qu'est-ce que 'l'avatar' décrit dans l'étape 3 ?",
+                options: [
+                    "Une chimère, un endroit qui ressemble à la surface de travail mais n'est pas la bonne.",
+                    "L'enfant intérieur du sujet.",
+                    "Le guide spirituel de la transe.",
+                    "La partie du cerveau qui résiste à l'hypnose."
+                ],
+                correct: 0,
+                explanation: "L'avatar est une fausse surface projective. Y travailler n'aura pas un vrai impact (on est alors en réalité encore en étape 2)."
+            },
+            {
+                question: "Lors de la phase 2 de l'étape 3 (Point chaud), quelle version du sujet convoque-t-on face à l'élément qui bouleverse ?",
+                options: [
+                    "Elle dans le futur, guérie.",
+                    "Elle en mode 'sauveur' ou 'pompier'.",
+                    "Celle d'aujourd'hui, celle qui a survécu.",
+                    "Un archétype héroïque imaginaire."
+                ],
+                correct: 2,
+                explanation: "On convoque l'autre elle d'aujourd'hui, celle qui a survécu parce qu'elle est là, et surtout pas la elle du futur ou en pompier."
+            },
+            {
+                question: "Quelle pratique est formellement interdite (marquée d'un '⚠️ Jamais') dans cette méthode ?",
+                options: [
+                    "La régression en âge.",
+                    "La futurisation.",
+                    "L'amnésie suggérée.",
+                    "L'idéomotricité."
+                ],
+                correct: 1,
+                explanation: "Jamais de futurisation. On ne projette pas le sujet sur quelque chose qui n'existe pas."
+            },
+            {
+                question: "Quel est le but de l'étape 4 (Le contrôle set) ?",
+                options: [
+                    "Vérifier à froid comment se positionne le sujet vis-à-vis de la situation passée.",
+                    "Créer un ancrage positif permanent.",
+                    "Réveiller le sujet brutalement pour tester l'état.",
+                    "Intégrer les nouvelles ressources dans l'avatar."
+                ],
+                correct: 0,
+                explanation: "On l'emmène dans une zone neutre. Une fois bien, on lui demande de repenser au travail. Cela permet de vérifier à froid en rajoutant des facteurs critiques."
+            },
+            {
+                question: "Lors du contrôle set (Étape 4), que fait-on si le ressenti du sujet est 'orange ou rouge' ?",
+                options: [
+                    "On ignore et on passe à l'intégration.",
+                    "On arrête la séance.",
+                    "Je reprends et retourne à la phase 3 sur une autre surface.",
+                    "On lui dit d'imaginer que tout va bien."
+                ],
+                correct: 2,
+                explanation: "Si ce n'est pas vert au contrôle set, on retourne au point chaud (étape 3) pour retravailler, généralement sur une autre surface de travail."
+            },
+            {
+                question: "Lors de la réitération (Étape 5), si le sujet dit 'je n'ai pas fait le bon choix' au contrôle set, que privilégie-t-on ?",
+                options: [
+                    "Travailler sur la même surface projective en changeant le choix.",
+                    "Travailler sur une toute nouvelle surface projective.",
+                    "Passer directement à la garde descendante.",
+                    "Créer un avatar pour compenser."
+                ],
+                correct: 0,
+                explanation: "S'il reconnait ne pas avoir fait le bon choix, on retourne sur la même surface pour lui permettre de faire un nouveau choix."
+            },
+            {
+                question: "Quel outil physique est généralement mis en place lors de l'étape 6 (L'intégration) ?",
+                options: [
+                    "Une catalepsie du bras entier.",
+                    "Un mouvement idéomoteur (ex: la main qui se lève, le corps qui se redresse).",
+                    "Un clignement rapide des yeux.",
+                    "Une marche dans la pièce."
+                ],
+                correct: 1,
+                explanation: "On installe un mouvement idéomoteur pour marquer l'intégration : 'au fur et à mesure que tu intègres, ton corps va se redresser' ou 'ton bras va se lever'."
+            },
+            {
+                question: "Pourquoi est-il précisé de NE PAS dire 'ne garde que le positif' lors de l'intégration ?",
+                options: [
+                    "Parce que l'inconscient ne comprend pas la négation.",
+                    "Parce qu'il faut que la personne garde toutes les leçons (même issues du négatif).",
+                    "Parce que le cerveau ne traite pas le positif en transe.",
+                    "Pour maintenir la charge émotionnelle intacte."
+                ],
+                correct: 1,
+                explanation: "Il ne faut pas l'influencer, car l'individu doit conserver toutes les leçons de l'expérience, pas uniquement 'le positif'."
+            },
+            {
+                question: "Comment doit se comporter le praticien pendant la phase de mouvement idéomoteur de l'intégration ?",
+                options: [
+                    "Il doit interrompre régulièrement pour vérifier l'état.",
+                    "Rien ne doit sortir la personne de son intégration, il ne faut pas l'interrompre.",
+                    "Il doit parler en continu pour guider la main.",
+                    "Il doit toucher le bras du sujet."
+                ],
+                correct: 1,
+                explanation: "L'intégration peut être très longue (parfois des heures), et idéalement, rien ne doit la sortir de son intégration."
+            },
+            {
+                question: "Si l'intégration (Étape 6) bloque parce que le sujet manque de temps, quelle suggestion 'déconseillée mais possible' peut-on faire ?",
+                options: [
+                    "Lui ordonner de se réveiller immédiatement.",
+                    "Alléger et accélérer le temps (les jours deviennent des heures...).",
+                    "Décaler l'intégration à la nuit suivante.",
+                    "Le menacer d'annuler le travail."
+                ],
+                correct: 1,
+                explanation: "Par manque de temps, on peut utiliser une distorsion du temps : 'le temps va s'alléger... les minutes deviennent des secondes'. C'est toutefois déconseillé de base."
+            },
+            {
+                question: "Que demande-t-on au niveau du mouvement en intégration par rapport au point de référence initial du sujet ?",
+                options: [
+                    "Une copie exacte de sa position.",
+                    "Une variation (ex: se redresser s'il était détendu, ou se détendre s'il était droit).",
+                    "Toujours une position complètement allongée.",
+                    "Un mouvement circulaire des mains."
+                ],
+                correct: 1,
+                explanation: "On cherche une variation par rapport au point de départ : s'il est détendu, il se redresse ; s'il est raide, il se détend."
+            },
+            {
+                question: "Que faire si, malgré plusieurs boucles (réitérations), le contrôle set ne passe jamais au vert et que la séance doit finir ?",
+                options: [
+                    "On annule tout le travail fait.",
+                    "On intègre ce qui a été fait et on met un ancrage pour y retourner.",
+                    "On le force à accepter que c'est fini et guéri.",
+                    "On le laisse en transe dans la salle d'attente."
+                ],
+                correct: 1,
+                explanation: "Si on n'a pas pu finir, on intègre ce qui est fait et on place un ancrage pour reprendre exactement à cet endroit lors de la prochaine séance."
+            },
+            {
+                question: "Quelle phase porte le nom de 'Garde descendante' (Étape 7) ?",
+                options: [
+                    "L'approfondissement vers la transe profonde.",
+                    "Le réveil en douceur et le retour à l'environnement.",
+                    "La confrontation finale avec le trauma.",
+                    "L'anamnèse de fin de séance."
+                ],
+                correct: 1,
+                explanation: "La garde descendante consiste à ramener le sujet à son environnement avec un réveil dirigé ('Serre-moi la main', 'Regarde-moi')."
+            },
+            {
+                question: "Dans cette méthode, quel est le SEUL CAS où l'on pose un ancrage ?",
+                options: [
+                    "Pour créer un bouton 'détente' pour la vie quotidienne.",
+                    "Si on n'a pas eu le temps de finir, pour retourner là où on s'est arrêté.",
+                    "Pour forcer le sujet à revenir consulter.",
+                    "Pour induire la transe en 3 secondes."
+                ],
+                correct: 1,
+                explanation: "C'est l'unique cas de pose d'ancrage : 'à l'entente de ce mot, tu retourneras exactement à l'endroit où on s'est arrêté'."
+            },
+            {
+                question: "Laquelle de ces phrases N'EST PAS caractéristique de l'étape 3 (Point chaud) ?",
+                options: [
+                    "Comment tu te sens ?",
+                    "On ajoute l'élément qui bouleverse.",
+                    "Tu penses à cette situation, comment tu te positionnes à froid ?",
+                    "Comment l'alter d'aujourd'hui se sent après la résultante ?"
+                ],
+                correct: 2,
+                explanation: "'Comment tu te positionnes à froid' est caractéristique de l'étape 4 (Contrôle set), où l'on teste la réaction depuis une surface neutre."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // Elements
+        const screenStart = document.getElementById('screen-start');
+        const screenQuestion = document.getElementById('screen-question');
+        const screenResults = document.getElementById('screen-results');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const scoreDisplay = document.getElementById('score-display');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationText = document.getElementById('explanation-text');
+        const nextBtn = document.getElementById('next-btn');
+        const finalScore = document.getElementById('final-score');
+        const resultMessage = document.getElementById('result-message');
+
+        function startQuiz() {
+            screenStart.classList.add('hidden');
+            screenQuestion.classList.remove('hidden');
+            progressContainer.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            updateUI();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            isAnswered = false;
+            const currentQ = questions[currentQuestionIndex];
+            
+            // Reset UI
+            explanationBox.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+            
+            // Set text
+            questionCounter.innerText = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+            questionText.innerText = currentQ.question;
+            
+            // Update Progress
+            const progressPercentage = (currentQuestionIndex / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            // Create options
+            currentQ.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-4 rounded-xl border border-slate-600 bg-slate-700/30 hover:bg-slate-600/50 text-slate-200 font-medium';
+                btn.innerHTML = `<span class="inline-block w-6 text-slate-400">${String.fromCharCode(65 + index)}.</span> ${opt}`;
+                btn.onclick = () => selectOption(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIndex, selectedBtn) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const currentQ = questions[currentQuestionIndex];
+            const buttons = optionsContainer.querySelectorAll('button');
+
+            // Disable all buttons
+            buttons.forEach(btn => btn.disabled = true);
+
+            // Check correct/wrong
+            if (selectedIndex === currentQ.correct) {
+                score++;
+                selectedBtn.classList.add('correct-ans');
+                selectedBtn.classList.remove('border-slate-600', 'bg-slate-700/30');
+            } else {
+                selectedBtn.classList.add('wrong-ans');
+                selectedBtn.classList.remove('border-slate-600', 'bg-slate-700/30');
+                // Highlight correct answer
+                buttons[currentQ.correct].classList.add('correct-ans');
+                buttons[currentQ.correct].classList.remove('border-slate-600', 'bg-slate-700/30');
+            }
+
+            updateUI();
+
+            // Show explanation
+            explanationText.innerText = currentQ.explanation;
+            explanationBox.classList.remove('hidden');
+            
+            // Show next button
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            screenQuestion.classList.add('hidden');
+            progressContainer.classList.add('hidden');
+            screenResults.classList.remove('hidden');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            finalScore.innerText = `${score} / ${questions.length} (${percentage}%)`;
+
+            let message = "";
+            let icon = "";
+            if (percentage === 100) {
+                message = "Excellent ! Vous maîtrisez parfaitement l'architecture et les pièges de cette structure hypnotique.";
+                icon = "🏆";
+            } else if (percentage >= 80) {
+                message = "Très bon score ! Vous avez bien intégré les phases et les limites de chaque étape de la transe.";
+                icon = "🌟";
+            } else if (percentage >= 50) {
+                message = "C'est un bon début. Quelques subtilités (comme la gestion de l'avatar ou l'absence de futurisation) restent à consolider.";
+                icon = "📚";
+            } else {
+                message = "Il serait bon de revoir vos notes. Concentrez-vous bien sur les différences entre les étapes (point chaud vs contrôle set).";
+                icon = "🧠";
+            }
+
+            document.getElementById('result-icon').innerText = icon;
+            resultMessage.innerText = message;
+        }
+
+        function resetQuiz() {
+            screenResults.classList.add('hidden');
+            startQuiz();
+        }
+
+        function updateUI() {
+            scoreDisplay.innerText = `Score: ${score}`;
+        }
+    </script>
+</body>
+</html>
